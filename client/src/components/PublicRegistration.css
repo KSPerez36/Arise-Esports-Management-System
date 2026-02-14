@@ -1,0 +1,309 @@
+/* Public Registration Modal - Arise Esports Theme */
+
+.registration-modal {
+  background: #1a1a2e;
+  border-radius: 15px;
+  max-width: 700px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(51, 102, 255, 0.3);
+}
+
+.registration-modal .modal-header {
+  background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%) !important;
+  padding: 25px 30px;
+  border-radius: 15px 15px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.registration-modal .modal-header h2 {
+  color: white !important;
+  margin: 0 !important;
+  font-size: 1.8rem;
+  font-weight: 700;
+  background: none !important;
+  background-image: none !important;
+  -webkit-text-fill-color: white !important;
+  text-shadow: none !important;
+}
+
+.registration-modal .close-btn {
+  background: transparent !important;
+  border: none;
+  color: white !important;
+  font-size: 30px;
+  cursor: pointer;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s ease;
+}
+
+.registration-modal .close-btn:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.registration-form {
+  padding: 30px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3366FF;
+  background: rgba(51, 102, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.error-message {
+  background: rgba(255, 59, 48, 0.1);
+  border: 1px solid rgba(255, 59, 48, 0.3);
+  color: #ff3b30;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%);
+  color: white;
+  box-shadow: 0 5px 15px rgba(51, 102, 255, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(51, 102, 255, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-note {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.85rem;
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* Success Modal */
+.success-modal {
+  text-align: center;
+  padding: 50px 40px;
+}
+
+.success-modal .modal-header {
+  background: linear-gradient(135deg, #34C759 0%, #30D158 100%) !important;
+}
+
+.success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
+  color: white;
+  font-size: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-modal h2 {
+  color: white !important;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  background: none !important;
+  -webkit-text-fill-color: white !important;
+}
+
+.success-modal p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.success-message {
+  background: rgba(52, 199, 89, 0.1);
+  border: 1px solid rgba(52, 199, 89, 0.3);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 25px 0;
+}
+
+.success-message strong {
+  color: #34C759;
+}
+
+.success-modal .btn-primary {
+  margin-top: 20px;
+  min-width: 150px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .registration-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .registration-modal .modal-header {
+    padding: 20px;
+  }
+
+  .registration-modal .modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .registration-form {
+    padding: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .success-modal {
+    padding: 30px 20px;
+  }
+
+  .success-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 35px;
+  }
+
+  .success-modal h2 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Scrollbar styling */
+.registration-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.registration-modal::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.registration-modal::-webkit-scrollbar-thumb {
+  background: rgba(51, 102, 255, 0.5);
+  border-radius: 4px;
+}
+
+.registration-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(51, 102, 255, 0.7);
+}

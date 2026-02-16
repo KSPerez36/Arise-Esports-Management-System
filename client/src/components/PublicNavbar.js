@@ -42,7 +42,7 @@ const PublicNavbar = ({ onJoinClick, onSignInClick }) => {
         <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
           <a href="#home" onClick={() => smoothScroll('home')}>Home</a>
           <a href="#about" onClick={() => smoothScroll('about')}>About</a>
-          <a href="#games" onClick={() => smoothScroll('games')}>Games</a>
+          {/*<a href="#games" onClick={() => smoothScroll('games')}>Games</a>*/}
           <a href="#events" onClick={() => smoothScroll('events')}>Events</a>
           <a href="#achievements" onClick={() => smoothScroll('achievements')}>Achievements</a>
         </div>

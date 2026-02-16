@@ -1,6 +1,27 @@
-/* Public Registration Modal - Arise Esports Theme */
+/* Public Registration Modal - FULLY ISOLATED - Won't affect dashboard */
 
-.registration-modal {
+/* Only apply these styles inside the registration modal */
+.public-registration-modal-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: pubRegFadeIn 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+@keyframes pubRegFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.public-registration-modal-wrapper .registration-modal {
   background: #1a1a2e;
   border-radius: 15px;
   max-width: 700px;
@@ -11,7 +32,7 @@
   border: 1px solid rgba(51, 102, 255, 0.3);
 }
 
-.registration-modal .modal-header {
+.public-registration-modal-wrapper .modal-header {
   background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%) !important;
   padding: 25px 30px;
   border-radius: 15px 15px 0 0;
@@ -20,7 +41,7 @@
   align-items: center;
 }
 
-.registration-modal .modal-header h2 {
+.public-registration-modal-wrapper .modal-header h2 {
   color: white !important;
   margin: 0 !important;
   font-size: 1.8rem;
@@ -31,7 +52,7 @@
   text-shadow: none !important;
 }
 
-.registration-modal .close-btn {
+.public-registration-modal-wrapper .close-btn {
   background: transparent !important;
   border: none;
   color: white !important;
@@ -46,31 +67,31 @@
   transition: background 0.3s ease;
 }
 
-.registration-modal .close-btn:hover {
+.public-registration-modal-wrapper .close-btn:hover {
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
-.registration-form {
+.public-registration-modal-wrapper .registration-form {
   padding: 30px;
 }
 
-.form-row {
+.public-registration-modal-wrapper .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   margin-bottom: 20px;
 }
 
-.form-group {
+.public-registration-modal-wrapper .form-group {
   display: flex;
   flex-direction: column;
 }
 
-.form-group.full-width {
+.public-registration-modal-wrapper .form-group.full-width {
   grid-column: 1 / -1;
 }
 
-.form-group label {
+.public-registration-modal-wrapper .form-group label {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
   margin-bottom: 8px;
@@ -79,9 +100,9 @@
   letter-spacing: 0.5px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.public-registration-modal-wrapper .form-group input,
+.public-registration-modal-wrapper .form-group select,
+.public-registration-modal-wrapper .form-group textarea {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
@@ -91,26 +112,26 @@
   transition: all 0.3s ease;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.public-registration-modal-wrapper .form-group input:focus,
+.public-registration-modal-wrapper .form-group select:focus,
+.public-registration-modal-wrapper .form-group textarea:focus {
   outline: none;
   border-color: #3366FF;
   background: rgba(51, 102, 255, 0.1);
   box-shadow: 0 0 0 3px rgba(51, 102, 255, 0.1);
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
+.public-registration-modal-wrapper .form-group input::placeholder,
+.public-registration-modal-wrapper .form-group textarea::placeholder {
   color: rgba(255, 255, 255, 0.4);
 }
 
-.form-group textarea {
+.public-registration-modal-wrapper .form-group textarea {
   resize: vertical;
   font-family: inherit;
 }
 
-.error-message {
+.public-registration-modal-wrapper .error-message {
   background: rgba(255, 59, 48, 0.1);
   border: 1px solid rgba(255, 59, 48, 0.3);
   color: #ff3b30;
@@ -120,7 +141,7 @@
   font-size: 0.9rem;
 }
 
-.form-actions {
+.public-registration-modal-wrapper .form-actions {
   display: flex;
   gap: 15px;
   justify-content: flex-end;
@@ -129,8 +150,8 @@
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.btn-primary,
-.btn-secondary {
+.public-registration-modal-wrapper .btn-primary,
+.public-registration-modal-wrapper .btn-secondary {
   padding: 12px 30px;
   border-radius: 8px;
   font-weight: 600;
@@ -142,51 +163,41 @@
   letter-spacing: 1px;
 }
 
-.btn-primary {
+.public-registration-modal-wrapper .btn-primary {
   background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%);
   color: white;
   box-shadow: 0 5px 15px rgba(51, 102, 255, 0.3);
 }
 
-.btn-primary:hover:not(:disabled) {
+.public-registration-modal-wrapper .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(51, 102, 255, 0.4);
 }
 
-.btn-primary:disabled {
+.public-registration-modal-wrapper .btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-secondary {
+.public-registration-modal-wrapper .btn-secondary {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.btn-secondary:hover {
+.public-registration-modal-wrapper .btn-secondary:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.form-note {
+.public-registration-modal-wrapper .form-note {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
   margin-top: 15px;
   text-align: center;
 }
 
-/* Success Modal */
-.success-modal {
-  text-align: center;
-  padding: 50px 40px;
-}
-
-.success-modal .modal-header {
-  background: linear-gradient(135deg, #34C759 0%, #30D158 100%) !important;
-}
-
-.success-icon {
+.public-registration-modal-wrapper .success-icon {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -197,10 +208,10 @@
   align-items: center;
   justify-content: center;
   margin: 0 auto 30px;
-  animation: scaleIn 0.5s ease;
+  animation: pubRegScaleIn 0.5s ease;
 }
 
-@keyframes scaleIn {
+@keyframes pubRegScaleIn {
   from {
     transform: scale(0);
     opacity: 0;
@@ -211,7 +222,12 @@
   }
 }
 
-.success-modal h2 {
+.public-registration-modal-wrapper .success-modal {
+  text-align: center;
+  padding: 50px 40px;
+}
+
+.public-registration-modal-wrapper .success-modal h2 {
   color: white !important;
   font-size: 2rem;
   margin-bottom: 15px;
@@ -219,13 +235,13 @@
   -webkit-text-fill-color: white !important;
 }
 
-.success-modal p {
+.public-registration-modal-wrapper .success-modal p {
   color: rgba(255, 255, 255, 0.8);
   font-size: 1.1rem;
   margin-bottom: 10px;
 }
 
-.success-message {
+.public-registration-modal-wrapper .success-message {
   background: rgba(52, 199, 89, 0.1);
   border: 1px solid rgba(52, 199, 89, 0.3);
   padding: 20px;
@@ -233,77 +249,26 @@
   margin: 25px 0;
 }
 
-.success-message strong {
+.public-registration-modal-wrapper .success-message strong {
   color: #34C759;
-}
-
-.success-modal .btn-primary {
-  margin-top: 20px;
-  min-width: 150px;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
-  .registration-modal {
+  .public-registration-modal-wrapper .registration-modal {
     width: 95%;
-    max-height: 95vh;
   }
 
-  .registration-modal .modal-header {
-    padding: 20px;
-  }
-
-  .registration-modal .modal-header h2 {
-    font-size: 1.4rem;
-  }
-
-  .registration-form {
-    padding: 20px;
-  }
-
-  .form-row {
+  .public-registration-modal-wrapper .form-row {
     grid-template-columns: 1fr;
-    gap: 15px;
   }
 
-  .form-actions {
+  .public-registration-modal-wrapper .form-actions {
     flex-direction: column-reverse;
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .public-registration-modal-wrapper .btn-primary,
+  .public-registration-modal-wrapper .btn-secondary {
     width: 100%;
   }
-
-  .success-modal {
-    padding: 30px 20px;
-  }
-
-  .success-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 35px;
-  }
-
-  .success-modal h2 {
-    font-size: 1.5rem;
-  }
-}
-
-/* Scrollbar styling */
-.registration-modal::-webkit-scrollbar {
-  width: 8px;
-}
-
-.registration-modal::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.registration-modal::-webkit-scrollbar-thumb {
-  background: rgba(51, 102, 255, 0.5);
-  border-radius: 4px;
-}
-
-.registration-modal::-webkit-scrollbar-thumb:hover {
-  background: rgba(51, 102, 255, 0.7);
 }

@@ -44,7 +44,7 @@ const PublicRegistration = ({ onClose }) => {
 
   if (success) {
     return (
-      <div className="modal-overlay" onClick={onClose}>
+      <div className="public-registration-modal-wrapper" onClick={onClose}>
         <div className="registration-modal success-modal" onClick={(e) => e.stopPropagation()}>
           <div className="success-icon">✓</div>
           <h2>Application Submitted!</h2>
@@ -62,7 +62,7 @@ const PublicRegistration = ({ onClose }) => {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="public-registration-modal-wrapper" onClick={onClose}>
       <div className="registration-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Join Arise Esports</h2>

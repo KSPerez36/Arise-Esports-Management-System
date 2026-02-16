@@ -1,21 +1,38 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState, useContext, useEffect } from "react";
+import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import PublicNavbar from "../components/PublicNavbar";
 import PublicRegistration from "../components/PublicRegistration";
 import "./LandingPage.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faBullseye,
+  faUsers,
+  faTrophy,
+} from "@fortawesome/free-solid-svg-icons";
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const LandingPage = () => {
   const [showRegistration, setShowRegistration] = useState(false);
   const navigate = useNavigate();
-    const { user } = useContext(AuthContext);  // ← ADD THIS
+  const { user } = useContext(AuthContext); // ← ADD THIS
 
   // Redirect logged-in users to dashboard  // ← ADD THIS
-  useEffect(() => {                          // ← ADD THIS
-    if (user) {                              // ← ADD THIS
-      navigate('/dashboard');                // ← ADD THIS
-    }                                        // ← ADD THIS
-  }, [user, navigate]);                      // ← ADD THIS
+useEffect(() => {
+    // Initialize animations
+    AOS.init({
+      duration: 1000, // How long the animation lasts (1 second)
+      once: true,     // Whether animation should happen only once - while scrolling down
+      offset: 100,    // Offset (in px) from the original trigger point
+      easing: 'ease-out', // Easing pattern
+    });
+
+    // Check for user login (your existing code)
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleJoinNow = () => {
     setShowRegistration(true);
@@ -53,7 +70,7 @@ const LandingPage = () => {
             <div className="cta-glow"></div>
           </button>
         </div>
-        <div className="scroll-indicator">
+        <div className="scroll-indicator" data-aos="fade-up" data-aos-delay="1000">
           <div className="mouse">
             <div className="wheel"></div>
           </div>
@@ -101,7 +118,7 @@ const LandingPage = () => {
             data-aos="fade-up"
             data-aos-delay="200"
           >
-            <div className="about-text">
+            <div className="about-text" data-aos="fade-right">
               {/* CUSTOMIZE: Replace with your organization's description */}
               <p>
                 CCC Arise Esports is a student-led esports organization
@@ -111,21 +128,21 @@ const LandingPage = () => {
                 teamwork, and community—empowering students to grow both in-game
                 and beyond.
               </p>
-              <div className="section-header" data-aos="fade-up">
+              <div className="section-header" data-aos="fade-up" data-aos-delay="100">
                 <h2 className="section-title">MISSION</h2>
                 <div className="title-underline"></div>
               </div>
-              <p>
+              <p data-aos="fade-right" data-aos-delay="200">
                 To foster a dynamic and inclusive gaming community within the
                 educational environment, empowering students to excel in
                 esports, develop valuable skills, and cultivate sportsmanship,
                 leadership, and teamwork.
               </p>
-              <div className="section-header" data-aos="fade-up">
+              <div className="section-header" data-aos="fade-up" data-aos-delay="300">
                 <h2 className="section-title">VISION</h2>
                 <div className="title-underline"></div>
               </div>
-              <p>
+              <p data-aos="fade-left" data-aos-delay="400">
                 The Arise Esports envisions itself as a leading school esports
                 organization that aims to create an environment where students
                 can explore their passion for gaming while promoting a healthy
@@ -134,18 +151,29 @@ const LandingPage = () => {
               </p>
             </div>
             <div className="about-features">
-              <div className="feature-card">
-                <div className="feature-icon">🎯</div>
+              <div className="feature-card" data-aos="flip-left" data-aos-delay="300">
+                <div className="feature-icon">
+                  {/* Replaced 🎯 with Font Awesome */}
+                  <FontAwesomeIcon icon={faBullseye} />
+                </div>
                 <h3>Competitive Excellence</h3>
                 <p>Train with the best and compete at the highest level</p>
               </div>
-              <div className="feature-card">
-                <div className="feature-icon">🤝</div>
+
+              <div className="feature-card" data-aos="flip-left" data-aos-delay="200">
+                <div className="feature-icon">
+                  {/* Replaced 🤝 with Font Awesome */}
+                  <FontAwesomeIcon icon={faUsers} />
+                </div>
                 <h3>Strong Community</h3>
                 <p>Join a family of passionate gamers and lifelong friends</p>
               </div>
-              <div className="feature-card">
-                <div className="feature-icon">🏆</div>
+
+              <div className="feature-card" data-aos="flip-left" data-aos-delay="300">
+                <div className="feature-icon">
+                  {/* Replaced 🏆 with Font Awesome */}
+                  <FontAwesomeIcon icon={faTrophy} />
+                </div>
                 <h3>Proven Winners</h3>
                 <p>Track record of championships and tournament victories</p>
               </div>
@@ -154,7 +182,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-{/* DISABLED - Games Section
+      {/* DISABLED - Games Section
       <section className="games-section" id="games">
         <div className="container">
           <div className="section-header" data-aos="fade-up">
@@ -213,25 +241,23 @@ const LandingPage = () => {
             <div className="achievement-photo-card">
               <div className="achievement-image">
                 <div className="achievement-placeholder">
-                  <span>🏆</span>
-                  <p>Achievement Photo 1</p>
+                  <img src="/images/achievement-1.png" alt="Achievement 1" />
                 </div>
               </div>
               <div className="achievement-overlay">
-                <h3>Champion</h3>
-                <p>ML CCC Tournament 2024</p>
+                <h3>KENT STEVEN PEREZ</h3>
+                <p>Student Leader of the Year by AcadArena</p>
               </div>
             </div>
             <div className="achievement-photo-card">
               <div className="achievement-image">
                 <div className="achievement-placeholder">
-                  <span>🥇</span>
-                  <p>Achievement Photo 2</p>
+                  <img src="/images/achievement-2.png" alt="Achievement 2" />
                 </div>
               </div>
               <div className="achievement-overlay">
-                <h3>1st Place</h3>
-                <p>Valorant Regional Finals</p>
+                <h3>GAMING EXPO 2025</h3>
+                <p>Project of the Year by AcadArena</p>
               </div>
             </div>
             <div className="achievement-photo-card">
@@ -308,56 +334,26 @@ const LandingPage = () => {
             {/* CUSTOMIZE: Add your partner logos */}
             <div className="partner-card">
               <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 1</p>
-                </div>
+                <div className="partner-placeholder"></div>
                 <img src="/images/partner-1.png" alt="AcadArena" />
               </div>
             </div>
             <div className="partner-card">
               <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 2</p>
-                </div>
-                {/* REPLACE WITH: <img src="/images/partner-2.png" alt="Partner 2" /> */}
+                <div className="partner-placeholder"></div>
+                <img src="/images/partner-2.png" alt="Partner 2" />
               </div>
             </div>
             <div className="partner-card">
               <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 3</p>
-                </div>
-                {/* REPLACE WITH: <img src="/images/partner-3.png" alt="Partner 3" /> */}
+                <div className="partner-placeholder"></div>
+                <img src="/images/partner-3.png" alt="Partner 3" />
               </div>
             </div>
             <div className="partner-card">
               <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 4</p>
-                </div>
-                {/* REPLACE WITH: <img src="/images/partner-4.png" alt="Partner 4" /> */}
-              </div>
-            </div>
-            <div className="partner-card">
-              <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 5</p>
-                </div>
-                {/* REPLACE WITH: <img src="/images/partner-5.png" alt="Partner 5" /> */}
-              </div>
-            </div>
-            <div className="partner-card">
-              <div className="partner-logo">
-                <div className="partner-placeholder">
-                  <span>🤝</span>
-                  <p>Partner Logo 6</p>
-                </div>
-                {/* REPLACE WITH: <img src="/images/partner-6.png" alt="Partner 6" /> */}
+                <div className="partner-placeholder"></div>
+                <img src="/images/partner-4.png" alt="Partner 4" />
               </div>
             </div>
           </div>
@@ -453,9 +449,7 @@ const LandingPage = () => {
                 <li>
                   <a href="#about">About</a>
                 </li>
-                <li>
-                  {/*<a href="#games">Games</a>*/}
-                </li>
+                <li>{/*<a href="#games">Games</a>*/}</li>
                 <li>
                   <a href="#achievements">Achievements</a>
                 </li>
@@ -509,7 +503,7 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; Gawa ni Kent Steven D. Perez</p> 
+            <p>&copy; Gawa ni Kent Steven D. Perez</p>
           </div>
         </div>
       </footer>

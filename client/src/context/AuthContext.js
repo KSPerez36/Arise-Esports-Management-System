@@ -47,18 +47,30 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password, role) => {
+  const forgotPassword = async (email) => {
     try {
-      const res = await axios.post(`${API_URL}/auth/register`, { name, email, password, role });
-      localStorage.setItem('token', res.data.token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.token}`;
-      setUser(res.data.user);
+      await axios.post(`${API_URL}/auth/forgot-password`, { email });
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || error.message || 'Registration failed' 
-      };
+      return { success: false, message: error.response?.data?.message || 'Failed to send OTP' };
+    }
+  };
+
+  const verifyOtp = async (email, otp) => {
+    try {
+      const res = await axios.post(`${API_URL}/auth/verify-otp`, { email, otp });
+      return { success: true, resetToken: res.data.resetToken };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || 'Invalid OTP' };
+    }
+  };
+
+  const resetPassword = async (resetToken, newPassword) => {
+    try {
+      await axios.post(`${API_URL}/auth/reset-password`, { resetToken, newPassword });
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.response?.data?.message || 'Reset failed' };
     }
   };
 
@@ -69,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout, forgotPassword, verifyOtp, resetPassword }}>
       {children}
     </AuthContext.Provider>
   );

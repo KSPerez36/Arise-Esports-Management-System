@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
-import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
@@ -25,13 +24,8 @@ const AppLayout = ({ children }) => {
       // Landing page - no navbar, just content
       return <div className="App">{children}</div>;
     } else {
-      // Login page - show navbar
-      return (
-        <div className="App">
-          <Navbar />
-          {children}
-        </div>
-      );
+      // Login page - no navbar
+      return <div className="App">{children}</div>;
     }
   }
   

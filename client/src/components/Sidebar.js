@@ -6,6 +6,7 @@ import {
   faUsers,
   faUserTie,
   faCalendarDays,
+  faWallet,
   faRightFromBracket,
   faChevronLeft,
   faChevronRight,
@@ -50,6 +51,12 @@ const Sidebar = () => {
       icon: faCalendarDays,
       label: "Events",
       roles: ["Admin", "President"],
+    },
+    {
+      path: "/finances",
+      icon: faWallet,
+      label: "Finances",
+      roles: ["Admin", "Treasurer", "Auditor"],
     },
   ];
 

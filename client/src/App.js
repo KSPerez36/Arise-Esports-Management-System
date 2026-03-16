@@ -9,6 +9,7 @@ import Dashboard from './pages/Dashboard';
 import Members from './pages/Members';
 import Officers from './pages/Officers';
 import Events from './pages/Events';
+import Finances from './pages/Finances';
 import './App.css';
 
 // Layout wrapper component
@@ -85,6 +86,7 @@ function App() {
               }
             />
 
+            <Route path="/finances" element={<PrivateRoute><Finances /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppLayout>

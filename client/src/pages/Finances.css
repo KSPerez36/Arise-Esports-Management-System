@@ -1,0 +1,557 @@
+/* ── Page Layout ── */
+.fin-page {
+  padding: 28px 32px;
+  min-height: 100vh;
+  background: #f8f9fb;
+}
+
+.fin-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: #94a3b8;
+}
+.fin-loading-icon {
+  font-size: 2.5rem;
+  color: #3366FF;
+  opacity: 0.4;
+}
+
+/* ── Header ── */
+.fin-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.fin-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+}
+.fin-page-sub {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+/* ── Toast ── */
+.fin-toast {
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+.fin-toast-success { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+.fin-toast-error   { background: #fef2f2; color: #ef4444; border: 1px solid #fecaca; }
+
+/* ── Summary Cards ── */
+.fin-summary-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.fin-summary-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border-top: 4px solid transparent;
+}
+.fin-card-budget      { border-top-color: #3366FF; }
+.fin-card-income      { border-top-color: #059669; }
+.fin-card-expense     { border-top-color: #ef4444; }
+.fin-card-balance-pos { border-top-color: #059669; }
+.fin-card-balance-neg { border-top-color: #ef4444; }
+
+.fin-summary-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.fin-card-budget      .fin-summary-icon { background: #eff6ff; color: #3366FF; }
+.fin-card-income      .fin-summary-icon { background: #ecfdf5; color: #059669; }
+.fin-card-expense     .fin-summary-icon { background: #fef2f2; color: #ef4444; }
+.fin-card-balance-pos .fin-summary-icon { background: #ecfdf5; color: #059669; }
+.fin-card-balance-neg .fin-summary-icon { background: #fef2f2; color: #ef4444; }
+
+.fin-summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.fin-summary-value {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-top: 2px;
+}
+
+/* ── Main Layout ── */
+.fin-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .fin-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Panel Shared ── */
+.fin-budget-panel,
+.fin-tx-panel {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  overflow: hidden;
+}
+
+.fin-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.fin-panel-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* ── Budget Panel ── */
+.fin-add-budget-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #3366FF;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.fin-add-budget-btn:hover { background: #dbeafe; }
+
+.fin-budget-list { padding: 8px 0; }
+.fin-budget-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f8fafc;
+  gap: 12px;
+  transition: background 0.12s;
+}
+.fin-budget-item:last-child { border-bottom: none; }
+.fin-budget-item:hover { background: #f8faff; }
+
+.fin-budget-info { flex: 1; min-width: 0; }
+.fin-budget-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fin-budget-year {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+.fin-budget-notes {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fin-budget-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.fin-budget-amount {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #3366FF;
+}
+.fin-budget-actions { display: flex; gap: 4px; }
+
+.fin-empty-small {
+  padding: 28px 20px;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+.fin-add-budget-btn-text {
+  background: none;
+  border: none;
+  color: #3366FF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+/* ── Action Buttons ── */
+.fin-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.fin-action-edit   { background: #eff6ff; color: #3366FF; }
+.fin-action-delete { background: #fef2f2; color: #ef4444; }
+.fin-action-edit:hover   { background: #dbeafe; }
+.fin-action-delete:hover { background: #fecaca; }
+
+/* ── Transactions Panel ── */
+.fin-tx-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fin-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fin-filter-icon { color: #94a3b8; font-size: 0.8rem; }
+.fin-pill {
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fin-pill:hover { background: #f8faff; }
+.fin-pill-active  { background: #f1f5f9; color: #1e293b; border-color: #cbd5e1; }
+.fin-pill-income  { background: #ecfdf5 !important; color: #059669 !important; border-color: #a7f3d0 !important; }
+.fin-pill-expense { background: #fef2f2 !important; color: #ef4444 !important; border-color: #fecaca !important; }
+
+.fin-tx-list { padding: 8px 0; }
+.fin-tx-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.12s;
+}
+.fin-tx-item:last-child { border-bottom: none; }
+.fin-tx-item:hover { background: #f8faff; }
+
+.fin-tx-type-bar {
+  width: 4px;
+  height: 44px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.fin-type-income  { background: #059669; }
+.fin-type-expense { background: #ef4444; }
+
+.fin-tx-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 38px;
+  flex-shrink: 0;
+}
+.fin-tx-day {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+.fin-tx-mon {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+.fin-tx-yr {
+  font-size: 0.6rem;
+  color: #94a3b8;
+}
+
+.fin-tx-body { flex: 1; min-width: 0; }
+.fin-tx-desc {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fin-tx-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.fin-type-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.fin-badge-income  { background: #ecfdf5; color: #059669; }
+.fin-badge-expense { background: #fef2f2; color: #ef4444; }
+
+.fin-tx-cat {
+  font-size: 0.72rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.fin-tx-budget {
+  font-size: 0.72rem;
+  color: #3366FF;
+  background: #eff6ff;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.fin-tx-ref {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.fin-tx-amount {
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+  min-width: 100px;
+  text-align: right;
+}
+.fin-amount-income  { color: #059669; }
+.fin-amount-expense { color: #ef4444; }
+
+.fin-tx-actions { display: flex; gap: 4px; flex-shrink: 0; }
+
+.fin-empty-tx {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 8px;
+  color: #94a3b8;
+  text-align: center;
+}
+.fin-empty-icon { font-size: 2.5rem; opacity: 0.3; margin-bottom: 8px; }
+.fin-empty-tx h3 { font-size: 1rem; font-weight: 700; color: #64748b; margin: 0; }
+.fin-empty-tx p  { font-size: 0.85rem; margin: 0; }
+
+/* ── Add Buttons ── */
+.fin-add-tx-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #3366FF, #6B2FBF);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fin-add-tx-btn:hover { opacity: 0.88; }
+.fin-add-tx-btn-sm { margin-top: 8px; }
+
+/* ── Modal ── */
+.fin-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.fin-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.fin-modal-sm { max-width: 400px; text-align: center; }
+
+.fin-modal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.fin-modal-title-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.fin-modal-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #3366FF, #6B2FBF);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.fin-modal-title-group h2 { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 0 0 4px; }
+.fin-modal-title-group p  { font-size: 0.8rem; color: #64748b; margin: 0; }
+.fin-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.fin-modal-close:hover { background: #e2e8f0; }
+
+/* ── Form ── */
+.fin-form { display: flex; flex-direction: column; gap: 16px; }
+.fin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fin-form-group { display: flex; flex-direction: column; gap: 6px; }
+.fin-form-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #374151;
+}
+.fin-req { color: #ef4444; }
+.fin-opt { color: #94a3b8; font-weight: 400; font-size: 0.75rem; }
+.fin-form-group input,
+.fin-form-group select,
+.fin-form-group textarea {
+  padding: 10px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 0.875rem;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+.fin-form-group input:focus,
+.fin-form-group select:focus,
+.fin-form-group textarea:focus { border-color: #3366FF; }
+
+.fin-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+.fin-form-actions-center { justify-content: center; }
+.fin-submit-btn {
+  padding: 11px 24px;
+  background: linear-gradient(135deg, #3366FF, #6B2FBF);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.fin-submit-btn:hover { opacity: 0.88; }
+.fin-cancel-btn {
+  padding: 11px 24px;
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fin-cancel-btn:hover { background: #e2e8f0; }
+
+/* ── Delete Modal ── */
+.fin-delete-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin: 0 auto 16px;
+}
+.fin-delete-title { font-size: 1.1rem; font-weight: 800; color: #1e293b; margin: 0 0 8px; }
+.fin-delete-msg   { font-size: 0.875rem; color: #64748b; margin: 0 0 24px; line-height: 1.5; }
+.fin-danger-btn {
+  padding: 11px 24px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.fin-danger-btn:hover { background: #dc2626; }

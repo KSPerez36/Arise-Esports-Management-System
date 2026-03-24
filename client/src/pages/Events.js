@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { FiscalYearContext } from '../context/FiscalYearContext';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -28,6 +29,7 @@ const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const emptyForm = { title: '', date: '', venue: '', description: '', status: 'Planning' };
 
 const Events = () => {
+  const { academicYear } = useContext(FiscalYearContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
@@ -45,11 +47,11 @@ const Events = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
 
-  useEffect(() => { fetchEvents(); fetchSuggestions(); }, []);
+  useEffect(() => { fetchEvents(); fetchSuggestions(); }, [academicYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchEvents = async () => {
     try {
-      const res = await axios.get(`${API_URL}/events`);
+      const res = await axios.get(`${API_URL}/events?academicYear=${academicYear}`);
       setEvents(res.data);
     } catch (err) {
       showMessage('error', err.response?.data?.message || 'Failed to load events');

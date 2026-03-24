@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { FiscalYearContext } from "../context/FiscalYearContext";
 import MemberModal from "../components/MemberModal";
 import PaymentModal from "../components/PaymentModal";
 import DeleteModal from "../components/DeleteModal";
@@ -17,6 +18,7 @@ const API_URL = "http://127.0.0.1:8080/api";
 
 const Members = () => {
   const { user } = useContext(AuthContext);
+  const { academicYear: globalYear } = useContext(FiscalYearContext);
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showMemberModal, setShowMemberModal] = useState(false);
@@ -26,7 +28,7 @@ const Members = () => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [memberToDelete, setMemberToDelete] = useState(null);
   const [filters, setFilters] = useState({
-    academicYear: "",
+    academicYear: globalYear,
     hasPaid: "",
     status: "",
     search: "",
@@ -40,6 +42,11 @@ const Members = () => {
   const canUpdatePayment = ["Admin", "Treasurer", "Secretary"].includes(
     user?.role,
   );
+
+  // Sync global academic year into the local filter
+  useEffect(() => {
+    setFilters(f => ({ ...f, academicYear: globalYear }));
+  }, [globalYear]);
 
   useEffect(() => {
     fetchMembers();

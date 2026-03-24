@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
+import { FiscalYearProvider } from './context/FiscalYearContext';
 import Sidebar from './components/Sidebar';
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
@@ -10,6 +11,7 @@ import Members from './pages/Members';
 import Officers from './pages/Officers';
 import Events from './pages/Events';
 import Finances from './pages/Finances';
+import Reports from './pages/Reports';
 import './App.css';
 
 // Layout wrapper component
@@ -45,6 +47,7 @@ const AppLayout = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
+      <FiscalYearProvider>
       <Router>
         <AppLayout>
           <Routes>
@@ -87,10 +90,12 @@ function App() {
             />
 
             <Route path="/finances" element={<PrivateRoute><Finances /></PrivateRoute>} />
+            <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppLayout>
       </Router>
+      </FiscalYearProvider>
     </AuthProvider>
   );
 }

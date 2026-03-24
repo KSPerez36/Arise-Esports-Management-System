@@ -6,10 +6,19 @@ const { checkRoles } = require('../middleware/checkRole');
 
 const adminOrPresident = checkRoles('Admin', 'President');
 
+function fyDateRange(academicYear) {
+  if (!academicYear) return null;
+  const [startYr] = academicYear.split('-').map(Number);
+  return { start: new Date(startYr, 7, 1), end: new Date(startYr + 1, 7, 1) };
+}
+
 // GET all events (sorted by date)
 router.get('/', auth, adminOrPresident, async (req, res) => {
   try {
-    const events = await Event.find().sort({ date: 1 });
+    const { academicYear } = req.query;
+    const range = fyDateRange(academicYear);
+    const query = range ? { date: { $gte: range.start, $lt: range.end } } : {};
+    const events = await Event.find(query).sort({ date: 1 });
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

@@ -8,18 +8,30 @@ const { checkRoles } = require('../middleware/checkRole');
 const canView  = checkRoles('Admin', 'Treasurer', 'Auditor');
 const canWrite = checkRoles('Admin', 'Treasurer');
 
+// e.g. "2024-2025" → { start: 2024-08-01, end: 2025-08-01 }
+function fyDateRange(academicYear) {
+  if (!academicYear) return null;
+  const [startYr] = academicYear.split('-').map(Number);
+  return { start: new Date(startYr, 7, 1), end: new Date(startYr + 1, 7, 1) };
+}
+
 // ── Summary ──────────────────────────────────────────────────────────────────
 router.get('/summary', auth, canView, async (req, res) => {
   try {
-    const budgets = await Budget.find();
+    const { academicYear } = req.query;
+    const budgetQuery = academicYear ? { academicYear } : {};
+    const budgets = await Budget.find(budgetQuery);
     const totalBudget = budgets.reduce((sum, b) => sum + b.totalAmount, 0);
 
+    const range = fyDateRange(academicYear);
+    const txMatch = range ? { date: { $gte: range.start, $lt: range.end } } : {};
+
     const incomeAgg = await Transaction.aggregate([
-      { $match: { type: 'Income' } },
+      { $match: { type: 'Income', ...txMatch } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const expenseAgg = await Transaction.aggregate([
-      { $match: { type: 'Expense' } },
+      { $match: { type: 'Expense', ...txMatch } },
       { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
 
@@ -35,7 +47,9 @@ router.get('/summary', auth, canView, async (req, res) => {
 // ── Budgets ───────────────────────────────────────────────────────────────────
 router.get('/budgets', auth, canView, async (req, res) => {
   try {
-    const budgets = await Budget.find().sort({ createdAt: -1 });
+    const { academicYear } = req.query;
+    const query = academicYear ? { academicYear } : {};
+    const budgets = await Budget.find(query).sort({ createdAt: -1 });
     res.json(budgets);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -74,7 +88,10 @@ router.delete('/budgets/:id', auth, canWrite, async (req, res) => {
 // ── Transactions ──────────────────────────────────────────────────────────────
 router.get('/transactions', auth, canView, async (req, res) => {
   try {
-    const transactions = await Transaction.find()
+    const { academicYear } = req.query;
+    const range = fyDateRange(academicYear);
+    const query = range ? { date: { $gte: range.start, $lt: range.end } } : {};
+    const transactions = await Transaction.find(query)
       .populate('budgetId', 'title academicYear')
       .sort({ date: -1, createdAt: -1 });
     res.json(transactions);
@@ -117,9 +134,10 @@ module.exports = router;
 // ── Monthly Summary (Admin only) ──────────────────────────────────────────────
 router.get('/monthly-summary', auth, canView, async (req, res) => {
   try {
-    const year  = new Date().getFullYear();
-    const start = new Date(year, 0, 1);
-    const end   = new Date(year + 1, 0, 1);
+    const { academicYear } = req.query;
+    const range = fyDateRange(academicYear);
+    const start = range ? range.start : new Date(new Date().getFullYear(), 0, 1);
+    const end   = range ? range.end   : new Date(new Date().getFullYear() + 1, 0, 1);
     const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
     const agg = await Transaction.aggregate([

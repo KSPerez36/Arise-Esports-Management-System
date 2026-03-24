@@ -8,6 +8,8 @@
     "@fortawesome/react-fontawesome": "^3.2.0",
     "aos": "^2.3.4",
     "axios": "^1.6.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.0",

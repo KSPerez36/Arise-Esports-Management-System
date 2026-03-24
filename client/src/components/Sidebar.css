@@ -137,6 +137,75 @@
   width: 0;
 }
 
+.sidebar-year {
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-year-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar.collapsed .sidebar-year-label {
+  opacity: 0;
+  height: 0;
+  margin: 0;
+}
+
+.sidebar-year-select {
+  width: 100%;
+  background: rgba(51, 102, 255, 0.15);
+  border: 1px solid rgba(51, 102, 255, 0.35);
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 10px;
+  cursor: pointer;
+  outline: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-year-select option {
+  background: #1a1a2e;
+  color: white;
+}
+
+.sidebar-year-select:hover,
+.sidebar-year-select:focus {
+  border-color: rgba(51, 102, 255, 0.7);
+  background: rgba(51, 102, 255, 0.22);
+}
+
+.sidebar.collapsed .sidebar-year-select {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  padding: 0;
+  border: none;
+}
+
+.sidebar-year-icon {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 16px;
+  padding: 4px 0;
+}
+
+.sidebar.collapsed .sidebar-year-icon {
+  display: flex;
+}
+
 .sidebar-footer {
   padding: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);

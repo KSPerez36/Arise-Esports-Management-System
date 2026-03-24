@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { FiscalYearContext } from '../context/FiscalYearContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChartPie, faArrowDown, faArrowUp, faWallet,
@@ -38,18 +39,17 @@ const CustomTooltip = ({ active, payload, label }) => {
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
+  const { academicYear } = useContext(FiscalYearContext);
   const navigate = useNavigate();
   const canViewFinance = ['Admin', 'Treasurer', 'Auditor'].includes(user?.role);
 
-  const [stats, setStats]             = useState({});
-  const [academicYear, setAcademicYear] = useState('2024-2025');
-  const [loading, setLoading]         = useState(true);
-
-  const [finSummary, setFinSummary]   = useState(null);
+  const [stats, setStats]           = useState({});
+  const [loading, setLoading]       = useState(true);
+  const [finSummary, setFinSummary] = useState(null);
   const [monthlyData, setMonthlyData] = useState([]);
 
-  useEffect(() => { fetchStats(); }, [academicYear]);
-  useEffect(() => { if (canViewFinance) fetchFinanceData(); }, [canViewFinance]);
+  useEffect(() => { fetchStats(); }, [academicYear]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (canViewFinance) fetchFinanceData(); }, [academicYear, canViewFinance]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchStats = async () => {
     try {
@@ -66,8 +66,8 @@ const Dashboard = () => {
   const fetchFinanceData = async () => {
     try {
       const [summary, monthly] = await Promise.all([
-        axios.get(`${API_URL}/finances/summary`),
-        axios.get(`${API_URL}/finances/monthly-summary`),
+        axios.get(`${API_URL}/finances/summary?academicYear=${academicYear}`),
+        axios.get(`${API_URL}/finances/monthly-summary?academicYear=${academicYear}`),
       ]);
       setFinSummary(summary.data);
       setMonthlyData(monthly.data);
@@ -94,20 +94,9 @@ const Dashboard = () => {
           <h1 className="dash-title">Dashboard</h1>
           <p className="dash-sub">Welcome back, {user?.name} — here's your organization overview</p>
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-          <select
-            className="dash-year-select"
-            value={academicYear}
-            onChange={e => setAcademicYear(e.target.value)}
-          >
-            <option value="2024-2025">2024-2025</option>
-            <option value="2023-2024">2023-2024</option>
-            <option value="2022-2023">2022-2023</option>
-          </select>
-          <button className="btn btn-primary" onClick={() => navigate('/members')}>
-            View All Members
-          </button>
-        </div>
+        <button className="btn btn-primary" onClick={() => navigate('/members')}>
+          View All Members
+        </button>
       </div>
 
       {/* ── Members Stats ── */}

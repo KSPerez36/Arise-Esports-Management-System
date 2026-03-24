@@ -7,17 +7,21 @@ import {
   faUserTie,
   faCalendarDays,
   faWallet,
+  faFileAlt,
   faRightFromBracket,
   faChevronLeft,
   faChevronRight,
+  faGraduationCap,
 } from "@fortawesome/free-solid-svg-icons";
 import { AuthContext } from "../context/AuthContext";
+import { FiscalYearContext } from "../context/FiscalYearContext";
 import "./Sidebar.css";
-import { useNavigate } from "react-router-dom"; // ← ADD THIS
+import { useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
-  const navigate = useNavigate(); // ← ADD THIS
+  const { academicYear, changeAcademicYear, yearOptions } = useContext(FiscalYearContext);
+  const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -57,6 +61,12 @@ const Sidebar = () => {
       icon: faWallet,
       label: "Finances",
       roles: ["Admin", "Treasurer", "Auditor"],
+    },
+    {
+      path: "/reports",
+      icon: faFileAlt,
+      label: "Reports",
+      roles: ["Admin", "Secretary"],
     },
   ];
 
@@ -105,6 +115,26 @@ const Sidebar = () => {
           </Link>
         ))}
       </nav>
+
+      {/* ── Academic Year Selector ── */}
+      <div className="sidebar-year">
+        {!isCollapsed && <div className="sidebar-year-label">Academic Year</div>}
+        {isCollapsed ? (
+          <div className="sidebar-year-icon" title={academicYear}>
+            <FontAwesomeIcon icon={faGraduationCap} />
+          </div>
+        ) : (
+          <select
+            className="sidebar-year-select"
+            value={academicYear}
+            onChange={e => changeAcademicYear(e.target.value)}
+          >
+            {yearOptions.map(y => (
+              <option key={y} value={y}>{y}</option>
+            ))}
+          </select>
+        )}
+      </div>
 
       <div className="sidebar-footer">
         {user && (

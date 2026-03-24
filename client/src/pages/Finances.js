@@ -6,6 +6,7 @@ import {
   faChartPie, faReceipt, faXmark, faFilter
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../context/AuthContext';
+import { FiscalYearContext } from '../context/FiscalYearContext';
 import './Finances.css';
 
 const API_URL = 'http://127.0.0.1:8080/api';
@@ -20,6 +21,7 @@ const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric'
 
 const Finances = () => {
   const { user } = useContext(AuthContext);
+  const { academicYear } = useContext(FiscalYearContext);
   const canWrite = user?.role === 'Admin' || user?.role === 'Treasurer';
 
   const [summary, setSummary]           = useState({ totalBudget: 0, totalIncome: 0, totalExpense: 0, balance: 0 });
@@ -39,14 +41,14 @@ const Finances = () => {
   const [budgetForm, setBudgetForm]       = useState(emptyBudget);
   const [txForm, setTxForm]               = useState(emptyTx);
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [academicYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchAll = async () => {
     try {
       const [s, b, t] = await Promise.all([
-        axios.get(`${API_URL}/finances/summary`),
-        axios.get(`${API_URL}/finances/budgets`),
-        axios.get(`${API_URL}/finances/transactions`),
+        axios.get(`${API_URL}/finances/summary?academicYear=${academicYear}`),
+        axios.get(`${API_URL}/finances/budgets?academicYear=${academicYear}`),
+        axios.get(`${API_URL}/finances/transactions?academicYear=${academicYear}`),
       ]);
       setSummary(s.data);
       setBudgets(b.data);

@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const Login = () => {
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'otp' | 'reset'
@@ -13,6 +15,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, forgotPassword, verifyOtp, resetPassword } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -147,7 +150,7 @@ const Login = () => {
                 <div className="form-group">
                   <label>Email Address</label>
                   <div className="input-with-icon">
-                    <i className="fas fa-envelope"></i>
+                    <FontAwesomeIcon icon={faEnvelope} />
                     <input
                       type="email"
                       className="form-control"
@@ -161,16 +164,19 @@ const Login = () => {
 
                 <div className="form-group">
                   <label>Password</label>
-                  <div className="input-with-icon">
-                    <i className="fas fa-lock"></i>
+                  <div className="input-with-icon input-with-toggle">
+                    <FontAwesomeIcon icon={faLock} />
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       className="form-control"
                       placeholder="Enter your password"
                       value={loginData.password}
                       onChange={e => setLoginData({ ...loginData, password: e.target.value })}
                       required
                     />
+                    <button type="button" className="password-toggle-btn" onClick={() => setShowPassword(v => !v)} tabIndex={-1}>
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
                   </div>
                 </div>
 

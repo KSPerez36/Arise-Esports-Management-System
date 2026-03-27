@@ -669,7 +669,8 @@ body {
   position: relative;
 }
 
-.input-with-icon i {
+.input-with-icon > i,
+.input-with-icon > svg {
   position: absolute;
   left: 16px;
   top: 50%;
@@ -684,8 +685,40 @@ body {
   padding-left: 44px;
 }
 
-.input-with-icon:focus-within i {
+.input-with-icon:focus-within > i,
+.input-with-icon:focus-within > svg {
   color: var(--primary-blue);
+}
+
+.input-with-toggle .form-control {
+  padding-right: 44px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #636e72;
+  font-size: 15px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: var(--primary-blue);
+}
+
+.password-toggle-btn svg {
+  font-size: 15px;
+  color: inherit;
+  pointer-events: none;
 }
 
 .otp-input {

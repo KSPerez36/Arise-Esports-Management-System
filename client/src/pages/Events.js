@@ -28,6 +28,16 @@ const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 const emptyForm = { title: '', date: '', venue: '', description: '', status: 'Planning' };
 
+// Returns today if today falls within the academic year, otherwise the start of that year
+function smartDate(academicYear) {
+  const [startYr] = academicYear.split('-').map(Number);
+  const now = new Date();
+  const start = new Date(startYr, 7, 1); // Aug 1
+  const end   = new Date(startYr + 1, 7, 1);
+  const d = (now >= start && now < end) ? now : start;
+  return d.toISOString().split('T')[0];
+}
+
 const Events = () => {
   const { academicYear } = useContext(FiscalYearContext);
   const [events, setEvents] = useState([]);
@@ -133,7 +143,7 @@ const Events = () => {
 
   const openAddModal = () => {
     setSelectedEvent(null);
-    setFormData(emptyForm);
+    setFormData({ ...emptyForm, date: smartDate(academicYear) });
     setShowModal(true);
   };
 

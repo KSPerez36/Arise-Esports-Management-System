@@ -88,9 +88,13 @@ router.get('/meeting-minutes', auth, canAccess, async (req, res) => {
 
 router.post('/meeting-minutes', auth, canAccess, async (req, res) => {
   try {
-    const { title, date, venue, agenda, attendees, discussions, resolutions } = req.body;
+    const {
+      title, eventDetails, date, timeStarted, timeEnded, venue,
+      agendaItems, meetingDetails, additionalNotes, attendance,
+    } = req.body;
     const doc = await MeetingMinutes.create({
-      title, date, venue, agenda, attendees, discussions, resolutions,
+      title, eventDetails, date, timeStarted, timeEnded, venue,
+      agendaItems, meetingDetails, additionalNotes, attendance,
       preparedBy: req.user.name,
       createdBy: req.user._id,
     });
@@ -102,10 +106,14 @@ router.post('/meeting-minutes', auth, canAccess, async (req, res) => {
 
 router.put('/meeting-minutes/:id', auth, canAccess, async (req, res) => {
   try {
-    const { title, date, venue, agenda, attendees, discussions, resolutions } = req.body;
+    const {
+      title, eventDetails, date, timeStarted, timeEnded, venue,
+      agendaItems, meetingDetails, additionalNotes, attendance,
+    } = req.body;
     const doc = await MeetingMinutes.findByIdAndUpdate(
       req.params.id,
-      { title, date, venue, agenda, attendees, discussions, resolutions },
+      { title, eventDetails, date, timeStarted, timeEnded, venue,
+        agendaItems, meetingDetails, additionalNotes, attendance },
       { new: true, runValidators: true }
     );
     if (!doc) return res.status(404).json({ message: 'Minutes not found' });

@@ -366,6 +366,7 @@ const Members = () => {
         <MemberModal
           isOpen={showMemberModal}
           member={selectedMember}
+          defaultAcademicYear={globalYear}
           onClose={() => {
             setShowMemberModal(false);
             setSelectedMember(null);

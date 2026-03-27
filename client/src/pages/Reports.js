@@ -25,7 +25,13 @@ const fmt = (n) => new Intl.NumberFormat('en-PH', { style: 'currency', currency:
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
 const todayStr = () => new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-const emptyMinute = { title: '', date: '', venue: '', agenda: '', attendees: '', discussions: '', resolutions: '' };
+const emptyMinuteForm = {
+  title: '', eventDetails: '', date: '', timeStarted: '', timeEnded: '', venue: '',
+  agendaItems: [''],
+  meetingDetails: [{ agendaTitle: '', toDoItems: [''], toNoteItems: [{ title: '', bullets: [''] }] }],
+  additionalNotes: [''],
+  attendance: [{ name: '', status: 'Present' }],
+};
 
 // ── PDF Helpers ────────────────────────────────────────────────────────────────
 
@@ -120,63 +126,196 @@ function exportMinutePDF(minute) {
   const doc = new jsPDF('p', 'mm', 'a4');
   const pageW = doc.internal.pageSize.getWidth();
   const margin = 18;
+  const indent1 = margin + 8;
+  const indent2 = margin + 14;
   const contentW = pageW - margin * 2;
-  let y = 20;
+  const contentW1 = pageW - indent1 - margin;
+  const contentW2 = pageW - indent2 - margin;
+  let y = 18;
 
+  const checkPage = (needed = 6) => { if (y + needed > 272) { doc.addPage(); y = 18; } };
+  const writeLine = (text, x, w, opts = {}) => {
+    const lines = doc.splitTextToSize(text, w || contentW);
+    lines.forEach(line => { checkPage(); doc.text(line, x, y, opts); y += 5; });
+  };
+
+  // ── Header ──────────────────────────────────────────────────────────────────
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
+  doc.setFontSize(18);
   doc.text('ARISE ESPORTS', pageW / 2, y, { align: 'center' });
-  y += 8;
-  doc.setFontSize(13);
-  doc.text('MINUTES OF THE MEETING', pageW / 2, y, { align: 'center' });
-  y += 6;
+  y += 9;
   doc.setDrawColor(51, 102, 255);
-  doc.setLineWidth(0.5);
+  doc.setLineWidth(0.7);
   doc.line(margin, y, pageW - margin, y);
-  y += 8;
+  y += 9;
 
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(80, 80, 80);
-  doc.text(`Date: ${fmtDate(minute.date)}`, margin, y);
-  doc.text(`Venue: ${minute.venue || '—'}`, pageW / 2, y);
-  y += 5;
-  doc.text(`Prepared by: ${minute.preparedBy || '—'}`, margin, y);
-  doc.setTextColor(0, 0, 0);
-  y += 10;
+  // ── Meeting Title ────────────────────────────────────────────────────────────
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  writeLine(minute.title || '', margin, contentW);
+  y += 2;
 
-  const sections = [
-    { label: 'AGENDA', body: minute.agenda },
-    { label: 'ATTENDEES', body: minute.attendees },
-    { label: 'DISCUSSIONS', body: minute.discussions },
-    { label: 'RESOLUTIONS', body: minute.resolutions },
-  ];
-
-  for (const sec of sections) {
-    if (y > 260) { doc.addPage(); y = 20; }
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text(sec.label, margin, y);
-    y += 5;
-    doc.setFont('helvetica', 'normal');
+  // ── Event Details (italic) ───────────────────────────────────────────────────
+  if (minute.eventDetails) {
     doc.setFontSize(9);
-    if (sec.body) {
-      const lines = doc.splitTextToSize(sec.body, contentW);
-      for (const line of lines) {
-        if (y > 272) { doc.addPage(); y = 20; }
-        doc.text(line, margin, y);
-        y += 5;
-      }
-    } else {
-      doc.setTextColor(150, 150, 150);
-      doc.text('(none)', margin, y);
-      doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'bolditalic');
+    doc.text('Event Details: ', margin, y);
+    const labelW = doc.getTextWidth('Event Details: ');
+    doc.setFont('helvetica', 'italic');
+    const detailLines = doc.splitTextToSize(minute.eventDetails, contentW - labelW);
+    detailLines.forEach((line, idx) => {
+      checkPage();
+      doc.text(line, idx === 0 ? margin + labelW : margin, y);
       y += 5;
-    }
-    y += 6;
+    });
+    y += 2;
   }
 
-  doc.save(`minutes_${minute.title.replace(/\s+/g, '_')}_${Date.now()}.pdf`);
+  // ── Meta info ────────────────────────────────────────────────────────────────
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Date: ', margin, y);
+  doc.setFont('helvetica', 'normal');
+  doc.text(fmtDate(minute.date), margin + doc.getTextWidth('Date: '), y);
+  y += 5;
+
+  if (minute.timeStarted) {
+    doc.setFont('helvetica', 'bold');
+    doc.text('Time Started: ', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(minute.timeStarted, margin + doc.getTextWidth('Time Started: '), y);
+    if (minute.timeEnded) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Time Ended: ', pageW / 2, y);
+      doc.setFont('helvetica', 'normal');
+      doc.text(minute.timeEnded, pageW / 2 + doc.getTextWidth('Time Ended: '), y);
+    }
+    y += 5;
+  }
+
+  if (minute.venue) {
+    doc.setFont('helvetica', 'bold');
+    doc.text('Venue: ', margin, y);
+    doc.setFont('helvetica', 'normal');
+    doc.text(minute.venue, margin + doc.getTextWidth('Venue: '), y);
+    y += 5;
+  }
+
+  y += 4;
+
+  // ── Agenda (list) ────────────────────────────────────────────────────────────
+  const agendaItems = minute.agendaItems || [];
+  if (agendaItems.length > 0) {
+    checkPage(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Agenda (list)', margin, y);
+    y += 6;
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    agendaItems.forEach((item, i) => {
+      checkPage();
+      writeLine(`${i + 1}. ${item}`, indent1, contentW1);
+    });
+    y += 4;
+  }
+
+  // ── Meeting Details ──────────────────────────────────────────────────────────
+  const meetingDetails = minute.meetingDetails || [];
+  if (meetingDetails.some(d => d.toDoItems?.length || d.toNoteItems?.length)) {
+    checkPage(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Meeting Details', margin, y);
+    y += 7;
+
+    meetingDetails.forEach((detail, i) => {
+      checkPage(10);
+      // Agenda sub-header
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bolditalic');
+      writeLine(`Agenda ${i + 1}:  ${detail.agendaTitle || ''}`, margin, contentW);
+      y += 2;
+
+      // To Do
+      const todos = (detail.toDoItems || []).filter(Boolean);
+      if (todos.length > 0) {
+        checkPage(6);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.text('To do:', indent1, y);
+        y += 5;
+        doc.setFont('helvetica', 'normal');
+        todos.forEach((item, j) => {
+          checkPage();
+          writeLine(`${j + 1}. ${item}`, indent2, contentW2);
+        });
+        y += 2;
+      }
+
+      // To Note
+      const notes = (detail.toNoteItems || []).filter(n => n.title || n.bullets?.some(Boolean));
+      if (notes.length > 0) {
+        checkPage(6);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'italic');
+        doc.text('To note', indent1, y);
+        y += 5;
+        notes.forEach((note, j) => {
+          checkPage();
+          doc.setFont('helvetica', 'bold');
+          writeLine(`${j + 1}. ${note.title || ''}`, indent2, contentW2);
+          const bullets = (note.bullets || []).filter(Boolean);
+          if (bullets.length > 0) {
+            doc.setFont('helvetica', 'normal');
+            bullets.forEach(b => {
+              checkPage();
+              writeLine(`\u2022 ${b}`, indent2 + 4, contentW2 - 4);
+            });
+          }
+        });
+        y += 2;
+      }
+
+      y += 3;
+    });
+  }
+
+  // ── Additional Notes ─────────────────────────────────────────────────────────
+  const addNotes = (minute.additionalNotes || []).filter(Boolean);
+  if (addNotes.length > 0) {
+    checkPage(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Additional Notes:', margin, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    addNotes.forEach(note => {
+      checkPage();
+      writeLine(`\u2022 ${note}`, indent1, contentW1);
+    });
+    y += 4;
+  }
+
+  // ── Attendance ───────────────────────────────────────────────────────────────
+  const attendance = minute.attendance || [];
+  if (attendance.length > 0) {
+    checkPage(8);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Attendance:', margin, y);
+    y += 6;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    attendance.forEach(a => {
+      checkPage();
+      doc.text(`${a.name} \u2013 ${a.status}`, margin, y);
+      y += 5;
+    });
+  }
+
+  doc.save(`minutes_${(minute.title || 'meeting').replace(/\s+/g, '_')}_${Date.now()}.pdf`);
 }
 
 function exportAttendancePDF(event, members) {
@@ -274,12 +413,16 @@ const Reports = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedMinute, setSelectedMinute] = useState(null);
   const [minuteToDelete, setMinuteToDelete] = useState(null);
-  const [minuteForm, setMinuteForm] = useState(emptyMinute);
+  const [minuteForm, setMinuteForm] = useState(emptyMinuteForm);
 
   // Venue sub-state (UI only — minuteForm.venue holds the assembled string)
   const [venueType, setVenueType] = useState('');
   const [venueBuilding, setVenueBuilding] = useState('');
   const [venueRoom, setVenueRoom] = useState('');
+
+  const emptyTimeParts = { hour: '', minute: '00', period: 'AM' };
+  const [timeStartedParts, setTimeStartedParts] = useState(emptyTimeParts);
+  const [timeEndedParts, setTimeEndedParts] = useState(emptyTimeParts);
 
   // Attendance tab
   const [selectedEventId, setSelectedEventId] = useState('');
@@ -397,13 +540,35 @@ const Reports = () => {
     setMinuteForm(f => ({ ...f, venue: buildVenueString('School', venueBuilding, room) }));
   };
 
+  // ── Time picker helpers ────────────────────────────────────────────────────
+  const MINUTES = ['00','05','10','15','20','25','30','35','40','45','50','55'];
+  const HOURS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+
+  const buildTimeString = ({ hour, minute, period }) =>
+    hour ? `${hour}:${minute} ${period}` : '';
+
+  const parseTimeString = (str) => {
+    if (!str) return emptyTimeParts;
+    const m = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!m) return emptyTimeParts;
+    return { hour: m[1], minute: m[2], period: m[3].toUpperCase() };
+  };
+
+  const updateTimePart = (setter, formKey, parts, field, val) => {
+    const next = { ...parts, [field]: val };
+    setter(next);
+    setMinuteForm(f => ({ ...f, [formKey]: buildTimeString(next) }));
+  };
+
   // ── Meeting Minutes CRUD ───────────────────────────────────────────────────
   const openAddMinute = () => {
     setSelectedMinute(null);
-    setMinuteForm(emptyMinute);
+    setMinuteForm(emptyMinuteForm);
     setVenueType('');
     setVenueBuilding('');
     setVenueRoom('');
+    setTimeStartedParts(emptyTimeParts);
+    setTimeEndedParts(emptyTimeParts);
     setShowMinutesModal(true);
   };
 
@@ -414,16 +579,70 @@ const Reports = () => {
     setVenueBuilding(building);
     setVenueRoom(room);
     setMinuteForm({
-      title: m.title,
+      title: m.title || '',
+      eventDetails: m.eventDetails || '',
       date: m.date ? m.date.slice(0, 10) : '',
+      timeStarted: m.timeStarted || '',
+      timeEnded:   m.timeEnded || '',
       venue: m.venue || '',
-      agenda: m.agenda || '',
-      attendees: m.attendees || '',
-      discussions: m.discussions || '',
-      resolutions: m.resolutions || '',
+      agendaItems: m.agendaItems?.length ? m.agendaItems : [''],
+      meetingDetails: m.meetingDetails?.length ? m.meetingDetails : [{ agendaTitle: '', toDoItems: [''], toNoteItems: [{ title: '', bullets: [''] }] }],
+      additionalNotes: m.additionalNotes?.length ? m.additionalNotes : [''],
+      attendance: m.attendance?.length ? m.attendance : [{ name: '', status: 'Present' }],
     });
+    setTimeStartedParts(parseTimeString(m.timeStarted));
+    setTimeEndedParts(parseTimeString(m.timeEnded));
     setShowMinutesModal(true);
   };
+
+  // ── Minute form mutation helpers ───────────────────────────────────────────
+  const addAgendaItem = () => setMinuteForm(f => ({
+    ...f,
+    agendaItems: [...f.agendaItems, ''],
+    meetingDetails: [...f.meetingDetails, { agendaTitle: '', toDoItems: [''], toNoteItems: [{ title: '', bullets: [''] }] }],
+  }));
+  const removeAgendaItem = (i) => setMinuteForm(f => ({
+    ...f,
+    agendaItems: f.agendaItems.filter((_, idx) => idx !== i),
+    meetingDetails: f.meetingDetails.filter((_, idx) => idx !== i),
+  }));
+  const updateAgendaItem = (i, val) => setMinuteForm(f => {
+    const agendaItems = f.agendaItems.map((a, idx) => idx === i ? val : a);
+    const meetingDetails = f.meetingDetails.map((d, idx) => idx === i ? { ...d, agendaTitle: val } : d);
+    return { ...f, agendaItems, meetingDetails };
+  });
+
+  const updateMD = (i, updater) => setMinuteForm(f => ({
+    ...f,
+    meetingDetails: f.meetingDetails.map((d, idx) => idx === i ? updater(d) : d),
+  }));
+  const addToDoItem = (i) => updateMD(i, d => ({ ...d, toDoItems: [...d.toDoItems, ''] }));
+  const removeToDoItem = (i, j) => updateMD(i, d => ({ ...d, toDoItems: d.toDoItems.filter((_, idx) => idx !== j) }));
+  const updateToDoItem = (i, j, val) => updateMD(i, d => ({ ...d, toDoItems: d.toDoItems.map((t, idx) => idx === j ? val : t) }));
+  const addToNoteItem = (i) => updateMD(i, d => ({ ...d, toNoteItems: [...d.toNoteItems, { title: '', bullets: [''] }] }));
+  const removeToNoteItem = (i, j) => updateMD(i, d => ({ ...d, toNoteItems: d.toNoteItems.filter((_, idx) => idx !== j) }));
+  const updateToNoteTitle = (i, j, val) => updateMD(i, d => ({
+    ...d, toNoteItems: d.toNoteItems.map((n, idx) => idx === j ? { ...n, title: val } : n),
+  }));
+  const addNoteBullet = (i, j) => updateMD(i, d => ({
+    ...d, toNoteItems: d.toNoteItems.map((n, idx) => idx === j ? { ...n, bullets: [...n.bullets, ''] } : n),
+  }));
+  const removeNoteBullet = (i, j, k) => updateMD(i, d => ({
+    ...d, toNoteItems: d.toNoteItems.map((n, idx) => idx === j ? { ...n, bullets: n.bullets.filter((_, bidx) => bidx !== k) } : n),
+  }));
+  const updateNoteBullet = (i, j, k, val) => updateMD(i, d => ({
+    ...d, toNoteItems: d.toNoteItems.map((n, idx) => idx === j ? { ...n, bullets: n.bullets.map((b, bidx) => bidx === k ? val : b) } : n),
+  }));
+
+  const addAdditionalNote = () => setMinuteForm(f => ({ ...f, additionalNotes: [...f.additionalNotes, ''] }));
+  const removeAdditionalNote = (i) => setMinuteForm(f => ({ ...f, additionalNotes: f.additionalNotes.filter((_, idx) => idx !== i) }));
+  const updateAdditionalNote = (i, val) => setMinuteForm(f => ({ ...f, additionalNotes: f.additionalNotes.map((n, idx) => idx === i ? val : n) }));
+
+  const addAttendee = () => setMinuteForm(f => ({ ...f, attendance: [...f.attendance, { name: '', status: 'Present' }] }));
+  const removeAttendee = (i) => setMinuteForm(f => ({ ...f, attendance: f.attendance.filter((_, idx) => idx !== i) }));
+  const updateAttendee = (i, field, val) => setMinuteForm(f => ({
+    ...f, attendance: f.attendance.map((a, idx) => idx === i ? { ...a, [field]: val } : a),
+  }));
 
   const handleSaveMinute = async (e) => {
     e.preventDefault();
@@ -859,8 +1078,10 @@ const Reports = () => {
                   <div className="rep-minute-info">
                     <p className="rep-minute-title">{m.title}</p>
                     <div className="rep-minute-meta">
-                      <span>{fmtDate(m.date)}</span>
+                      <span>{fmtDate(m.date)}{m.timeStarted ? ` · ${m.timeStarted}${m.timeEnded ? `–${m.timeEnded}` : ''}` : ''}</span>
                       {m.venue && <span>📍 {m.venue}</span>}
+                      {(m.agendaItems?.length > 0) && <span>{m.agendaItems.length} agenda item{m.agendaItems.length !== 1 ? 's' : ''}</span>}
+                      {(m.attendance?.length > 0) && <span>{m.attendance.filter(a => a.status === 'Present').length} present</span>}
                       {m.preparedBy && <span>Prepared by: {m.preparedBy}</span>}
                     </div>
                   </div>
@@ -927,84 +1148,235 @@ const Reports = () => {
       ════════════════════════════════════════════════════════════ */}
       {showMinutesModal && (
         <div className="rep-overlay" onClick={() => setShowMinutesModal(false)}>
-          <div className="rep-modal" onClick={e => e.stopPropagation()}>
+          <div className="rep-modal rep-modal-large" onClick={e => e.stopPropagation()}>
             <div className="rep-modal-header">
               <h2 className="rep-modal-title">{selectedMinute ? 'Edit Meeting Minutes' : 'New Meeting Minutes'}</h2>
               <button className="rep-modal-close" onClick={() => setShowMinutesModal(false)}>✕</button>
             </div>
-            <form onSubmit={handleSaveMinute}>
-              <div className="rep-form-row">
-                <div className="rep-form-group">
-                  <label>Title *</label>
-                  <input required value={minuteForm.title}
-                    onChange={e => setMinuteForm(f => ({ ...f, title: e.target.value }))}
-                    placeholder="e.g. General Assembly Meeting" />
+            <form onSubmit={handleSaveMinute} className="rep-minute-form">
+
+              {/* ── Section 1: Basic Info ── */}
+              <div className="rep-form-section">
+                <div className="rep-form-row">
+                  <div className="rep-form-group">
+                    <label>Title *</label>
+                    <input required value={minuteForm.title}
+                      onChange={e => setMinuteForm(f => ({ ...f, title: e.target.value }))}
+                      placeholder="e.g. ARISE: SILAKBO 2026" />
+                  </div>
+                  <div className="rep-form-group">
+                    <label>Date *</label>
+                    <input type="date" required value={minuteForm.date}
+                      onChange={e => setMinuteForm(f => ({ ...f, date: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="rep-form-row">
+                  <div className="rep-form-group">
+                    <label>Time Started</label>
+                    <div className="rep-time-picker">
+                      <select className="rep-time-select"
+                        value={timeStartedParts.hour}
+                        onChange={e => updateTimePart(setTimeStartedParts, 'timeStarted', timeStartedParts, 'hour', e.target.value)}>
+                        <option value="">--</option>
+                        {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+                      </select>
+                      <span className="rep-time-colon">:</span>
+                      <select className="rep-time-select"
+                        value={timeStartedParts.minute}
+                        onChange={e => updateTimePart(setTimeStartedParts, 'timeStarted', timeStartedParts, 'minute', e.target.value)}>
+                        {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                      <div className="rep-time-period">
+                        {['AM','PM'].map(p => (
+                          <label key={p} className="rep-radio-label">
+                            <input type="radio" name="timeStartedPeriod" value={p}
+                              checked={timeStartedParts.period === p}
+                              onChange={() => updateTimePart(setTimeStartedParts, 'timeStarted', timeStartedParts, 'period', p)} />
+                            {p}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    {minuteForm.timeStarted && <div className="rep-time-preview">{minuteForm.timeStarted}</div>}
+                  </div>
+                  <div className="rep-form-group">
+                    <label>Time Ended</label>
+                    <div className="rep-time-picker">
+                      <select className="rep-time-select"
+                        value={timeEndedParts.hour}
+                        onChange={e => updateTimePart(setTimeEndedParts, 'timeEnded', timeEndedParts, 'hour', e.target.value)}>
+                        <option value="">--</option>
+                        {HOURS.map(h => <option key={h} value={h}>{h}</option>)}
+                      </select>
+                      <span className="rep-time-colon">:</span>
+                      <select className="rep-time-select"
+                        value={timeEndedParts.minute}
+                        onChange={e => updateTimePart(setTimeEndedParts, 'timeEnded', timeEndedParts, 'minute', e.target.value)}>
+                        {MINUTES.map(m => <option key={m} value={m}>{m}</option>)}
+                      </select>
+                      <div className="rep-time-period">
+                        {['AM','PM'].map(p => (
+                          <label key={p} className="rep-radio-label">
+                            <input type="radio" name="timeEndedPeriod" value={p}
+                              checked={timeEndedParts.period === p}
+                              onChange={() => updateTimePart(setTimeEndedParts, 'timeEnded', timeEndedParts, 'period', p)} />
+                            {p}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    {minuteForm.timeEnded && <div className="rep-time-preview">{minuteForm.timeEnded}</div>}
+                  </div>
                 </div>
                 <div className="rep-form-group">
-                  <label>Date *</label>
-                  <input type="date" required value={minuteForm.date}
-                    onChange={e => setMinuteForm(f => ({ ...f, date: e.target.value }))} />
-                </div>
-              </div>
-              <div className="rep-form-group">
-                <label>Venue</label>
-                <select
-                  className="rep-venue-select"
-                  value={venueType}
-                  onChange={e => handleVenueType(e.target.value)}
-                >
-                  <option value="">— Select venue —</option>
-                  <option value="Google Meet">Google Meet</option>
-                  <option value="School">School</option>
-                </select>
-                {venueType === 'School' && (
-                  <select
-                    className="rep-venue-select rep-venue-select-indent"
-                    value={venueBuilding}
-                    onChange={e => handleVenueBuilding(e.target.value)}
-                  >
-                    <option value="">— Select building —</option>
-                    <option value="JMC">JMC</option>
-                    <option value="RIZAL">RIZAL</option>
-                    <option value="ADMIN">ADMIN</option>
+                  <label>Venue</label>
+                  <select className="rep-venue-select" value={venueType} onChange={e => handleVenueType(e.target.value)}>
+                    <option value="">— Select venue —</option>
+                    <option value="Google Meet">Google Meet</option>
+                    <option value="School">School</option>
                   </select>
-                )}
-                {venueType === 'School' && venueBuilding && (
-                  <input
-                    className="rep-venue-room"
-                    value={venueRoom}
-                    onChange={e => handleVenueRoom(e.target.value)}
-                    placeholder="Room number (e.g. 101)"
-                  />
-                )}
-                {minuteForm.venue && (
-                  <div className="rep-venue-preview">📍 {minuteForm.venue}</div>
-                )}
+                  {venueType === 'School' && (
+                    <select className="rep-venue-select rep-venue-select-indent" value={venueBuilding} onChange={e => handleVenueBuilding(e.target.value)}>
+                      <option value="">— Select building —</option>
+                      <option value="JMC">JMC</option>
+                      <option value="RIZAL">RIZAL</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  )}
+                  {venueType === 'School' && venueBuilding && (
+                    <input className="rep-venue-room" value={venueRoom}
+                      onChange={e => handleVenueRoom(e.target.value)}
+                      placeholder="Room number (e.g. 101)" />
+                  )}
+                  {minuteForm.venue && <div className="rep-venue-preview">📍 {minuteForm.venue}</div>}
+                </div>
+                <div className="rep-form-group">
+                  <label>Event Details</label>
+                  <textarea rows={2} value={minuteForm.eventDetails}
+                    onChange={e => setMinuteForm(f => ({ ...f, eventDetails: e.target.value }))}
+                    placeholder="Brief summary of what the meeting was about…" />
+                </div>
               </div>
-              <div className="rep-form-group">
-                <label>Agenda</label>
-                <textarea rows={3} value={minuteForm.agenda}
-                  onChange={e => setMinuteForm(f => ({ ...f, agenda: e.target.value }))}
-                  placeholder="List the agenda items…" />
+
+              {/* ── Section 2: Agenda Items ── */}
+              <div className="rep-form-section">
+                <div className="rep-form-section-header">
+                  <span className="rep-section-label">Agenda</span>
+                  <button type="button" className="rep-add-item-btn" onClick={addAgendaItem}>+ Add Item</button>
+                </div>
+                {minuteForm.agendaItems.map((item, i) => (
+                  <div key={i} className="rep-dynamic-row">
+                    <span className="rep-item-num">{i + 1}.</span>
+                    <input value={item} onChange={e => updateAgendaItem(i, e.target.value)}
+                      placeholder={`Agenda item ${i + 1}`} />
+                    {minuteForm.agendaItems.length > 1 && (
+                      <button type="button" className="rep-remove-btn" onClick={() => removeAgendaItem(i)}>×</button>
+                    )}
+                  </div>
+                ))}
               </div>
-              <div className="rep-form-group">
-                <label>Attendees</label>
-                <textarea rows={3} value={minuteForm.attendees}
-                  onChange={e => setMinuteForm(f => ({ ...f, attendees: e.target.value }))}
-                  placeholder="List attendees…" />
+
+              {/* ── Section 3: Meeting Details (per agenda item) ── */}
+              <div className="rep-form-section">
+                <div className="rep-form-section-header">
+                  <span className="rep-section-label">Meeting Details</span>
+                </div>
+                {minuteForm.meetingDetails.map((detail, i) => (
+                  <div key={i} className="rep-agenda-detail">
+                    <p className="rep-agenda-detail-title">Agenda {i + 1}: {minuteForm.agendaItems[i] || '(untitled)'}</p>
+
+                    {/* To Do */}
+                    <div className="rep-sub-section">
+                      <div className="rep-sub-section-header">
+                        <span className="rep-sub-label">To do:</span>
+                        <button type="button" className="rep-add-item-btn rep-add-item-btn-sm" onClick={() => addToDoItem(i)}>+ Add</button>
+                      </div>
+                      {detail.toDoItems.map((item, j) => (
+                        <div key={j} className="rep-dynamic-row rep-indent">
+                          <span className="rep-item-num">{j + 1}.</span>
+                          <input value={item} onChange={e => updateToDoItem(i, j, e.target.value)}
+                            placeholder="To-do item…" />
+                          {detail.toDoItems.length > 1 && (
+                            <button type="button" className="rep-remove-btn" onClick={() => removeToDoItem(i, j)}>×</button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* To Note */}
+                    <div className="rep-sub-section">
+                      <div className="rep-sub-section-header">
+                        <span className="rep-sub-label">To note:</span>
+                        <button type="button" className="rep-add-item-btn rep-add-item-btn-sm" onClick={() => addToNoteItem(i)}>+ Add Note</button>
+                      </div>
+                      {detail.toNoteItems.map((note, j) => (
+                        <div key={j} className="rep-note-block rep-indent">
+                          <div className="rep-dynamic-row">
+                            <span className="rep-item-num">{j + 1}.</span>
+                            <input value={note.title} onChange={e => updateToNoteTitle(i, j, e.target.value)}
+                              placeholder="Note heading…" />
+                            {detail.toNoteItems.length > 1 && (
+                              <button type="button" className="rep-remove-btn" onClick={() => removeToNoteItem(i, j)}>×</button>
+                            )}
+                          </div>
+                          {note.bullets.map((bullet, k) => (
+                            <div key={k} className="rep-dynamic-row rep-indent">
+                              <span className="rep-bullet-dot">•</span>
+                              <input value={bullet} onChange={e => updateNoteBullet(i, j, k, e.target.value)}
+                                placeholder="Sub-item…" />
+                              {note.bullets.length > 1 && (
+                                <button type="button" className="rep-remove-btn" onClick={() => removeNoteBullet(i, j, k)}>×</button>
+                              )}
+                            </div>
+                          ))}
+                          <button type="button" className="rep-add-item-btn rep-add-item-btn-xs rep-indent" onClick={() => addNoteBullet(i, j)}>+ Add bullet</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="rep-form-group">
-                <label>Discussions</label>
-                <textarea rows={4} value={minuteForm.discussions}
-                  onChange={e => setMinuteForm(f => ({ ...f, discussions: e.target.value }))}
-                  placeholder="Summarize discussions…" />
+
+              {/* ── Section 4: Additional Notes ── */}
+              <div className="rep-form-section">
+                <div className="rep-form-section-header">
+                  <span className="rep-section-label">Additional Notes</span>
+                  <button type="button" className="rep-add-item-btn" onClick={addAdditionalNote}>+ Add Note</button>
+                </div>
+                {minuteForm.additionalNotes.map((note, i) => (
+                  <div key={i} className="rep-dynamic-row">
+                    <span className="rep-bullet-dot">•</span>
+                    <input value={note} onChange={e => updateAdditionalNote(i, e.target.value)}
+                      placeholder="Additional note…" />
+                    {minuteForm.additionalNotes.length > 1 && (
+                      <button type="button" className="rep-remove-btn" onClick={() => removeAdditionalNote(i)}>×</button>
+                    )}
+                  </div>
+                ))}
               </div>
-              <div className="rep-form-group">
-                <label>Resolutions / Action Items</label>
-                <textarea rows={3} value={minuteForm.resolutions}
-                  onChange={e => setMinuteForm(f => ({ ...f, resolutions: e.target.value }))}
-                  placeholder="List resolutions or action items…" />
+
+              {/* ── Section 5: Attendance ── */}
+              <div className="rep-form-section">
+                <div className="rep-form-section-header">
+                  <span className="rep-section-label">Attendance</span>
+                  <button type="button" className="rep-add-item-btn" onClick={addAttendee}>+ Add Attendee</button>
+                </div>
+                {minuteForm.attendance.map((a, i) => (
+                  <div key={i} className="rep-dynamic-row">
+                    <input value={a.name} onChange={e => updateAttendee(i, 'name', e.target.value)}
+                      placeholder="Full name…" style={{ flex: 2 }} />
+                    <select value={a.status} onChange={e => updateAttendee(i, 'status', e.target.value)}
+                      className="rep-attendee-status">
+                      <option value="Present">Present</option>
+                      <option value="Absent">Absent</option>
+                    </select>
+                    {minuteForm.attendance.length > 1 && (
+                      <button type="button" className="rep-remove-btn" onClick={() => removeAttendee(i)}>×</button>
+                    )}
+                  </div>
+                ))}
               </div>
+
               <div className="rep-modal-footer">
                 <button type="button" className="rep-btn-cancel" onClick={() => setShowMinutesModal(false)}>Cancel</button>
                 <button type="submit" className="rep-btn-save">Save Minutes</button>

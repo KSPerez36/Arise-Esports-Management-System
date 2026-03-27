@@ -16,6 +16,15 @@ const CATEGORIES = ['Membership Fee', 'Sponsorship', 'Event Expense', 'Equipment
 const emptyBudget = { title: '', academicYear: '', totalAmount: '', notes: '' };
 const emptyTx = { type: 'Income', category: 'Membership Fee', amount: '', description: '', date: '', reference: '', budgetId: '' };
 
+function smartDate(academicYear) {
+  const [startYr] = academicYear.split('-').map(Number);
+  const now = new Date();
+  const start = new Date(startYr, 7, 1);
+  const end   = new Date(startYr + 1, 7, 1);
+  const d = (now >= start && now < end) ? now : start;
+  return d.toISOString().split('T')[0];
+}
+
 const fmt = (n) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n);
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -66,7 +75,7 @@ const Finances = () => {
   };
 
   // ── Budget CRUD ──
-  const openAddBudget = () => { setSelectedBudget(null); setBudgetForm(emptyBudget); setBudgetModal(true); };
+  const openAddBudget = () => { setSelectedBudget(null); setBudgetForm({ ...emptyBudget, academicYear }); setBudgetModal(true); };
   const openEditBudget = (b) => {
     setSelectedBudget(b);
     setBudgetForm({ title: b.title, academicYear: b.academicYear, totalAmount: b.totalAmount, notes: b.notes || '' });
@@ -90,7 +99,7 @@ const Finances = () => {
   };
 
   // ── Transaction CRUD ──
-  const openAddTx = () => { setSelectedTx(null); setTxForm(emptyTx); setTxModal(true); };
+  const openAddTx = () => { setSelectedTx(null); setTxForm({ ...emptyTx, date: smartDate(academicYear) }); setTxModal(true); };
   const openEditTx = (t) => {
     setSelectedTx(t);
     setTxForm({

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const MemberModal = ({ isOpen, onClose, onSubmit, member }) => {
+const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear }) => {
+  const fallbackYear = defaultAcademicYear || '2024-2025';
+
   const [formData, setFormData] = useState({
     studentId: '',
     firstName: '',
@@ -9,7 +11,7 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member }) => {
     phoneNumber: '',
     course: '',
     yearLevel: '1st Year',
-    academicYear: '2024-2025',
+    academicYear: fallbackYear,
     remarks: ''
   });
 
@@ -23,7 +25,7 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member }) => {
         phoneNumber: member.phoneNumber || '',
         course: member.course || '',
         yearLevel: member.yearLevel || '1st Year',
-        academicYear: member.academicYear || '2024-2025',
+        academicYear: member.academicYear || fallbackYear,
         remarks: member.remarks || ''
       });
     } else {
@@ -35,11 +37,11 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member }) => {
         phoneNumber: '',
         course: '',
         yearLevel: '1st Year',
-        academicYear: '2024-2025',
+        academicYear: fallbackYear,
         remarks: ''
       });
     }
-  }, [member]);
+  }, [member, defaultAcademicYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (e) => {
     setFormData({

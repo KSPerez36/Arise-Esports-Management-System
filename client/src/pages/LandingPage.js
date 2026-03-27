@@ -142,7 +142,7 @@ useEffect(() => {
                 <h2 className="section-title">VISION</h2>
                 <div className="title-underline"></div>
               </div>
-              <p data-aos="fade-left" data-aos-delay="400">
+              <p data-aos="fade-right" data-aos-delay="400">
                 The Arise Esports envisions itself as a leading school esports
                 organization that aims to create an environment where students
                 can explore their passion for gaming while promoting a healthy

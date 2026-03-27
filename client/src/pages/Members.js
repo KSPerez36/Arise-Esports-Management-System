@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { FiscalYearContext } from "../context/FiscalYearContext";
@@ -12,7 +12,39 @@ import {
   faPencil,
   faCreditCard,
   faTrash,
+  faFileCsv,
+  faDownload,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
+
+const MEMBER_CSV_HEADERS = ['studentId','firstName','lastName','email','phoneNumber','course','yearLevel','academicYear','hasPaid','status','remarks'];
+const MEMBER_YEAR_LEVELS = ['1st Year','2nd Year','3rd Year','4th Year','5th Year'];
+
+function parseMemberCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = values[i] ?? ''; });
+    return obj;
+  });
+}
+
+function downloadMemberTemplate() {
+  const blob = new Blob([MEMBER_CSV_HEADERS.join(',') + '\n'], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'members_import_template.csv';
+  link.click();
+}
+
+function validateMemberRow(row) {
+  if (!row.studentId || !row.firstName || !row.lastName || !row.email || !row.course || !row.yearLevel || !row.academicYear) return 'Missing required fields';
+  if (!MEMBER_YEAR_LEVELS.includes(row.yearLevel)) return `Invalid yearLevel "${row.yearLevel}"`;
+  return null;
+}
 
 const API_URL = "http://127.0.0.1:8080/api";
 
@@ -34,6 +66,12 @@ const Members = () => {
     search: "",
   });
   const [message, setMessage] = useState({ type: "", text: "" });
+
+  // CSV Import state
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importRows, setImportRows] = useState([]);
+  const [importing, setImporting] = useState(false);
+  const importFileRef = useRef();
 
   // Check user permissions
   const canAddMember = ["Admin", "Secretary"].includes(user?.role);
@@ -140,6 +178,35 @@ const Members = () => {
     }
   };
 
+  const handleImportFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setImportRows(parseMemberCSV(ev.target.result));
+      setShowImportModal(true);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const handleBulkImport = async () => {
+    if (!importRows.length) return;
+    setImporting(true);
+    try {
+      const res = await axios.post(`${API_URL}/members/bulk-import`, { members: importRows });
+      setMessage({ type: "success", text: `Import done: ${res.data.created} added, ${res.data.skipped} skipped.` });
+      setShowImportModal(false);
+      setImportRows([]);
+      fetchMembers();
+      setTimeout(() => setMessage({ type: "", text: "" }), 4000);
+    } catch (err) {
+      setMessage({ type: "error", text: err.response?.data?.message || "Import failed." });
+    } finally {
+      setImporting(false);
+    }
+  };
+
   const handleDownloadList = () => {
     const csvData = members.map((member) => ({
       "Student ID": member.studentId,
@@ -174,18 +241,22 @@ const Members = () => {
       <div className="card">
         <div className="flex-between mb-20">
           <h2>Members Management</h2>
-          <div className="flex-center" style={{ gap: "10px" }}>
+          <div className="flex-center" style={{ gap: "10px", flexWrap: "wrap" }}>
             <button className="btn btn-secondary" onClick={handleDownloadList}>
-              Download List
+              <FontAwesomeIcon icon={faDownload} /> Export CSV
             </button>
-            {canAddMember && (
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowMemberModal(true)}
-              >
+            {canAddMember && (<>
+              <button className="btn btn-secondary" onClick={downloadMemberTemplate}>
+                <FontAwesomeIcon icon={faFileCsv} /> Template
+              </button>
+              <button className="btn btn-secondary" onClick={() => importFileRef.current.click()}>
+                <FontAwesomeIcon icon={faFileCsv} /> Import CSV
+              </button>
+              <input type="file" accept=".csv" ref={importFileRef} style={{ display: "none" }} onChange={handleImportFileChange} />
+              <button className="btn btn-primary" onClick={() => setShowMemberModal(true)}>
                 Add New Member
               </button>
-            )}
+            </>)}
           </div>
         </div>
 
@@ -505,6 +576,49 @@ const Members = () => {
         }
         itemType="member"
       />
+
+      {/* ── CSV Import Preview Modal ── */}
+      {showImportModal && (
+        <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
+          <div className="modal" style={{ maxWidth: 860, width: "95vw" }} onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Import Preview — {importRows.length} row{importRows.length !== 1 ? "s" : ""}</h2>
+              <button className="close-btn" onClick={() => setShowImportModal(false)}>×</button>
+            </div>
+            <p style={{ fontSize: "0.85rem", color: "#636e72", margin: "0 0 14px" }}>
+              Rows highlighted in red are missing required fields or have invalid year levels and will be skipped.
+            </p>
+            <div style={{ maxHeight: 360, overflowY: "auto", border: "1px solid #e0e0e0", borderRadius: 10, marginBottom: 16 }}>
+              <table className="table" style={{ fontSize: "0.78rem" }}>
+                <thead>
+                  <tr>{MEMBER_CSV_HEADERS.map(h => <th key={h}>{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {importRows.slice(0, 50).map((row, i) => {
+                    const err = validateMemberRow(row);
+                    return (
+                      <tr key={i} style={err ? { background: "#fff5f5", color: "#dc2626" } : {}}>
+                        {MEMBER_CSV_HEADERS.map(h => <td key={h}>{row[h] || "—"}</td>)}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              {importRows.length > 50 && (
+                <p style={{ textAlign: "center", color: "#94a3b8", fontSize: "0.78rem", padding: 8 }}>
+                  Showing first 50 of {importRows.length} rows.
+                </p>
+              )}
+            </div>
+            <div className="flex-center" style={{ gap: 10, justifyContent: "flex-end" }}>
+              <button className="btn btn-secondary" onClick={() => setShowImportModal(false)}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleBulkImport} disabled={importing}>
+                {importing ? <><FontAwesomeIcon icon={faSpinner} spin /> Importing…</> : `Import ${importRows.length} Rows`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

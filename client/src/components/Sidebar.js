@@ -48,7 +48,7 @@ const Sidebar = () => {
       path: "/officers",
       icon: faUserTie,
       label: "Officers",
-      roles: ["Admin"], // Only Admin can see this
+      roles: ["Admin", "Secretary"],
     },
     {
       path: "/events",

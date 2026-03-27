@@ -269,4 +269,64 @@ router.get('/stats/summary', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/members/bulk-import
+// @desc    Bulk import members from CSV
+// @access  Admin, Secretary
+router.post('/bulk-import', auth, checkRoles('Admin', 'Secretary'), async (req, res) => {
+  try {
+    const { members } = req.body;
+    if (!Array.isArray(members) || members.length === 0) {
+      return res.status(400).json({ message: 'No members provided' });
+    }
+
+    const VALID_YEAR_LEVELS = ['1st Year', '2nd Year', '3rd Year', '4th Year', '5th Year'];
+    const VALID_STATUSES = ['Pending', 'Official Member', 'Rejected'];
+    let created = 0, skipped = 0;
+    const errors = [];
+
+    for (let i = 0; i < members.length; i++) {
+      const m = members[i];
+      try {
+        if (!m.studentId || !m.firstName || !m.lastName || !m.email || !m.course || !m.yearLevel || !m.academicYear) {
+          errors.push({ row: i + 2, message: 'Missing required fields (studentId, firstName, lastName, email, course, yearLevel, academicYear)' });
+          skipped++;
+          continue;
+        }
+        if (!VALID_YEAR_LEVELS.includes(m.yearLevel)) {
+          errors.push({ row: i + 2, message: `Invalid yearLevel "${m.yearLevel}". Must be one of: ${VALID_YEAR_LEVELS.join(', ')}` });
+          skipped++;
+          continue;
+        }
+        const exists = await Member.findOne({ studentId: m.studentId });
+        if (exists) {
+          errors.push({ row: i + 2, message: `Student ID "${m.studentId}" already exists` });
+          skipped++;
+          continue;
+        }
+        await Member.create({
+          studentId:    m.studentId,
+          firstName:    m.firstName,
+          lastName:     m.lastName,
+          email:        m.email,
+          phoneNumber:  m.phoneNumber || '',
+          course:       m.course,
+          yearLevel:    m.yearLevel,
+          academicYear: m.academicYear,
+          hasPaid:      m.hasPaid === 'true' || m.hasPaid === true,
+          status:       VALID_STATUSES.includes(m.status) ? m.status : 'Pending',
+          remarks:      m.remarks || '',
+        });
+        created++;
+      } catch (err) {
+        errors.push({ row: i + 2, message: err.message });
+        skipped++;
+      }
+    }
+
+    res.json({ created, skipped, errors });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;

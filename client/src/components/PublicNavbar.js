@@ -14,7 +14,8 @@ const PublicNavbar = ({ onJoinClick, onSignInClick }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const smoothScroll = (id) => {
+  const smoothScroll = (e, id) => {
+    e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -40,11 +41,11 @@ const PublicNavbar = ({ onJoinClick, onSignInClick }) => {
         </button>
 
         <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
-          <a href="#home" onClick={() => smoothScroll('home')}>Home</a>
-          <a href="#about" onClick={() => smoothScroll('about')}>About</a>
-          {/*<a href="#games" onClick={() => smoothScroll('games')}>Games</a>*/}
-          <a href="#events" onClick={() => smoothScroll('events')}>Events</a>
-          <a href="#achievements" onClick={() => smoothScroll('achievements')}>Achievements</a>
+          <a href="#home" onClick={(e) => smoothScroll(e, 'home')}>Home</a>
+          <a href="#about" onClick={(e) => smoothScroll(e, 'about')}>About</a>
+          {/*<a href="#games" onClick={(e) => smoothScroll(e, 'games')}>Games</a>*/}
+          <a href="#events" onClick={(e) => smoothScroll(e, 'events')}>Events</a>
+          <a href="#achievements" onClick={(e) => smoothScroll(e, 'achievements')}>Achievements</a>
         </div>
 
         <div className="navbar-actions">

@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import './PublicRegistration.css';
 
 const API_URL = 'http://127.0.0.1:8080/api';
+
+const YEAR_LEVELS = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
+
 
 const PublicRegistration = ({ onClose }) => {
   const [formData, setFormData] = useState({
@@ -50,7 +53,7 @@ const PublicRegistration = ({ onClose }) => {
           <h2>Application Submitted!</h2>
           <p>Thank you for your interest in joining Arise Esports!</p>
           <p className="success-message">
-            Your application is now <strong>pending review</strong>. Our officers will review your 
+            Your application is now <strong>pending review</strong>. Our officers will review your
             application and contact you via email soon.
           </p>
           <button className="btn-primary" onClick={onClose}>
@@ -138,31 +141,45 @@ const PublicRegistration = ({ onClose }) => {
           </div>
 
           <div className="form-row">
-            <div className="form-group">
+            <div className="form-group full-width">
               <label>Course *</label>
-              <input
-                type="text"
+              <select
                 name="course"
                 value={formData.course}
                 onChange={handleChange}
-                placeholder="e.g., BSIT, BSCS"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label>Year Level *</label>
-              <select
-                name="yearLevel"
-                value={formData.yearLevel}
-                onChange={handleChange}
                 required
               >
-                <option value="1st Year">1st Year</option>
-                <option value="2nd Year">2nd Year</option>
-                <option value="3rd Year">3rd Year</option>
-                <option value="4th Year">4th Year</option>
-                <option value="5th Year">5th Year</option>
+                <option value="" disabled>Select your course</option>
+                <option value="BS Information Technology">BS Information Technology</option>
+                <option value="BS Computer Science">BS Computer Science</option>
+                <option value="BS Accountancy">BS Accountancy</option>
+                <option value="BS Accounting Information System">BS Accounting Information System</option>
+                <option value="BS Secondary Education Major: Science Education">BS Secondary Education Major: Science Education</option>
+                <option value="BS Secondary Education Major: English Language Education">BS Secondary Education Major: English Language Education</option>
+                <option value="BS Secondary Education Major: Mathematics Education">BS Secondary Education Major: Mathematics Education</option>
+                <option value="Bachelor of Elementary Education">Bachelor of Elementary Education</option>
+                <option value="BS Psychology">BS Psychology</option>
               </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group full-width">
+              <label>Year Level *</label>
+              <div className="year-level-pills">
+                {YEAR_LEVELS.map(yr => (
+                  <label key={yr} className={`year-pill ${formData.yearLevel === yr ? 'active' : ''}`}>
+                    <input
+                      type="radio"
+                      name="yearLevel"
+                      value={yr}
+                      checked={formData.yearLevel === yr}
+                      onChange={handleChange}
+                    />
+                    {yr}
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -173,7 +190,7 @@ const PublicRegistration = ({ onClose }) => {
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleChange}
-                rows="4"
+                rows="3"
                 placeholder="Tell us about your gaming experience, favorite games, or why you want to join..."
               ></textarea>
             </div>

@@ -1,6 +1,5 @@
 /* Public Registration Modal - FULLY ISOLATED - Won't affect dashboard */
 
-/* Only apply these styles inside the registration modal */
 .public-registration-modal-wrapper {
   position: fixed;
   top: 0;
@@ -26,15 +25,13 @@
   border-radius: 15px;
   max-width: 700px;
   width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(51, 102, 255, 0.3);
 }
 
 .public-registration-modal-wrapper .modal-header {
   background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%) !important;
-  padding: 25px 30px;
+  padding: 20px 25px;
   border-radius: 15px 15px 0 0;
   display: flex;
   justify-content: space-between;
@@ -44,7 +41,7 @@
 .public-registration-modal-wrapper .modal-header h2 {
   color: white !important;
   margin: 0 !important;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
   background: none !important;
   background-image: none !important;
@@ -56,10 +53,10 @@
   background: transparent !important;
   border: none;
   color: white !important;
-  font-size: 30px;
+  font-size: 28px;
   cursor: pointer;
-  width: 35px;
-  height: 35px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,14 +69,14 @@
 }
 
 .public-registration-modal-wrapper .registration-form {
-  padding: 30px;
+  padding: 20px 25px;
 }
 
 .public-registration-modal-wrapper .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 14px;
+  margin-bottom: 14px;
 }
 
 .public-registration-modal-wrapper .form-group {
@@ -94,8 +91,8 @@
 .public-registration-modal-wrapper .form-group label {
   color: rgba(255, 255, 255, 0.9);
   font-weight: 600;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -103,13 +100,28 @@
 .public-registration-modal-wrapper .form-group input,
 .public-registration-modal-wrapper .form-group select,
 .public-registration-modal-wrapper .form-group textarea {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  padding: 12px 15px;
+  padding: 10px 13px;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: all 0.3s ease;
+}
+
+.public-registration-modal-wrapper .form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='rgba(255,255,255,0.6)' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.public-registration-modal-wrapper .form-group select option {
+  background: #1a1a2e;
+  color: white;
 }
 
 .public-registration-modal-wrapper .form-group input:focus,
@@ -123,39 +135,81 @@
 
 .public-registration-modal-wrapper .form-group input::placeholder,
 .public-registration-modal-wrapper .form-group textarea::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 .public-registration-modal-wrapper .form-group textarea {
-  resize: vertical;
+  resize: none;
   font-family: inherit;
 }
 
+/* Year Level Pills */
+.public-registration-modal-wrapper .year-level-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.public-registration-modal-wrapper .year-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.05);
+  user-select: none;
+}
+
+.public-registration-modal-wrapper .year-pill input[type="radio"] {
+  display: none;
+}
+
+.public-registration-modal-wrapper .year-pill:hover {
+  border-color: rgba(51, 102, 255, 0.5);
+  color: white;
+  background: rgba(51, 102, 255, 0.1);
+}
+
+.public-registration-modal-wrapper .year-pill.active {
+  background: linear-gradient(135deg, #3366FF 0%, #6B2FBF 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(51, 102, 255, 0.3);
+}
+
+/* Error */
 .public-registration-modal-wrapper .error-message {
   background: rgba(255, 59, 48, 0.1);
   border: 1px solid rgba(255, 59, 48, 0.3);
   color: #ff3b30;
-  padding: 12px 15px;
+  padding: 10px 14px;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 14px;
   font-size: 0.9rem;
 }
 
+/* Actions */
 .public-registration-modal-wrapper .form-actions {
   display: flex;
-  gap: 15px;
-  justify-content: flex-end;
-  margin-top: 30px;
-  padding-top: 20px;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 20px;
+  padding-top: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .public-registration-modal-wrapper .btn-primary,
 .public-registration-modal-wrapper .btn-secondary {
-  padding: 12px 30px;
+  padding: 10px 26px;
   border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
@@ -191,62 +245,57 @@
 }
 
 .public-registration-modal-wrapper .form-note {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.85rem;
-  margin-top: 15px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.8rem;
+  margin-top: 12px;
   text-align: center;
 }
 
+/* Success Modal */
 .public-registration-modal-wrapper .success-icon {
-  width: 80px;
-  height: 80px;
+  width: 75px;
+  height: 75px;
   border-radius: 50%;
   background: linear-gradient(135deg, #34C759 0%, #30D158 100%);
   color: white;
-  font-size: 50px;
+  font-size: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 30px;
+  margin: 0 auto 25px;
   animation: pubRegScaleIn 0.5s ease;
 }
 
 @keyframes pubRegScaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .public-registration-modal-wrapper .success-modal {
   text-align: center;
-  padding: 50px 40px;
+  padding: 45px 40px;
 }
 
 .public-registration-modal-wrapper .success-modal h2 {
   color: white !important;
-  font-size: 2rem;
-  margin-bottom: 15px;
+  font-size: 1.8rem;
+  margin-bottom: 12px;
   background: none !important;
   -webkit-text-fill-color: white !important;
 }
 
 .public-registration-modal-wrapper .success-modal p {
   color: rgba(255, 255, 255, 0.8);
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin-bottom: 10px;
 }
 
 .public-registration-modal-wrapper .success-message {
   background: rgba(52, 199, 89, 0.1);
   border: 1px solid rgba(52, 199, 89, 0.3);
-  padding: 20px;
+  padding: 16px;
   border-radius: 10px;
-  margin: 25px 0;
+  margin: 20px 0;
 }
 
 .public-registration-modal-wrapper .success-message strong {

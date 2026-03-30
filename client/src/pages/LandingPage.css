@@ -1,6 +1,34 @@
 /* Landing Page - Arise Esports Theme - FULLY SCOPED */
 /* This CSS will ONLY affect the landing page, not your dashboard */
 
+/* Custom Scrollbar - Landing Page only */
+html:has(.landing-page) {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #3366FF #0a0a0f;
+}
+
+.landing-page ::-webkit-scrollbar,
+html:has(.landing-page) ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.landing-page ::-webkit-scrollbar-track,
+html:has(.landing-page) ::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+
+.landing-page ::-webkit-scrollbar-thumb,
+html:has(.landing-page) ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3366FF, #6B2FBF);
+  border-radius: 4px;
+}
+
+.landing-page ::-webkit-scrollbar-thumb:hover,
+html:has(.landing-page) ::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4d7fff, #8a4fd4);
+}
+
 /* Main container - scoped */
 #root .landing-page {
   background: #0a0a0f;

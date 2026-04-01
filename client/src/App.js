@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { FiscalYearProvider } from './context/FiscalYearContext';
+import { ToastProvider } from './context/ToastContext';
 import Sidebar from './components/Sidebar';
 import PrivateRoute from './components/PrivateRoute';
 import LandingPage from './pages/LandingPage';
@@ -48,6 +49,7 @@ function App() {
   return (
     <AuthProvider>
       <FiscalYearProvider>
+      <ToastProvider>
       <Router>
         <AppLayout>
           <Routes>
@@ -95,6 +97,7 @@ function App() {
           </Routes>
         </AppLayout>
       </Router>
+      </ToastProvider>
       </FiscalYearProvider>
     </AuthProvider>
   );

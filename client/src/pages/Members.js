@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { FiscalYearContext } from "../context/FiscalYearContext";
+import { useToast } from "../context/ToastContext";
 import MemberModal from "../components/MemberModal";
 import PaymentModal from "../components/PaymentModal";
 import DeleteModal from "../components/DeleteModal";
@@ -65,7 +66,7 @@ const Members = () => {
     status: "",
     search: "",
   });
-  const [message, setMessage] = useState({ type: "", text: "" });
+  const { showToast } = useToast();
 
   // CSV Import state
   const [showImportModal, setShowImportModal] = useState(false);
@@ -111,31 +112,23 @@ const Members = () => {
   const handleAddMember = async (memberData) => {
     try {
       await axios.post(`${API_URL}/members`, memberData);
-      setMessage({ type: "success", text: "Member added successfully!" });
+      showToast("success", "Member added successfully!");
       fetchMembers();
       setShowMemberModal(false);
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to add member",
-      });
+      showToast("error", error.response?.data?.message || "Failed to add member");
     }
   };
 
   const handleEditMember = async (memberData) => {
     try {
       await axios.put(`${API_URL}/members/${selectedMember._id}`, memberData);
-      setMessage({ type: "success", text: "Member updated successfully!" });
+      showToast("success", "Member updated successfully!");
       fetchMembers();
       setShowMemberModal(false);
       setSelectedMember(null);
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to update member",
-      });
+      showToast("error", error.response?.data?.message || "Failed to update member");
     }
   };
 
@@ -145,16 +138,12 @@ const Members = () => {
         `${API_URL}/members/${selectedMember._id}/payment`,
         paymentData,
       );
-      setMessage({ type: "success", text: "Payment updated successfully!" });
+      showToast("success", "Payment updated successfully!");
       fetchMembers();
       setShowPaymentModal(false);
       setSelectedMember(null);
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to update payment",
-      });
+      showToast("error", error.response?.data?.message || "Failed to update payment");
     }
   };
 
@@ -163,16 +152,12 @@ const Members = () => {
 
     try {
       await axios.delete(`${API_URL}/members/${memberToDelete._id}`);
-      setMessage({ type: "success", text: "Member deleted successfully!" });
+      showToast("success", "Member deleted successfully!");
       fetchMembers();
       setShowDeleteModal(false);
       setMemberToDelete(null);
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.response?.data?.message || "Failed to delete member",
-      });
+      showToast("error", error.response?.data?.message || "Failed to delete member");
       setShowDeleteModal(false);
       setMemberToDelete(null);
     }
@@ -195,13 +180,12 @@ const Members = () => {
     setImporting(true);
     try {
       const res = await axios.post(`${API_URL}/members/bulk-import`, { members: importRows });
-      setMessage({ type: "success", text: `Import done: ${res.data.created} added, ${res.data.skipped} skipped.` });
+      showToast("success", `Import done: ${res.data.created} added, ${res.data.skipped} skipped.`);
       setShowImportModal(false);
       setImportRows([]);
       fetchMembers();
-      setTimeout(() => setMessage({ type: "", text: "" }), 4000);
     } catch (err) {
-      setMessage({ type: "error", text: err.response?.data?.message || "Import failed." });
+      showToast("error", err.response?.data?.message || "Import failed.");
     } finally {
       setImporting(false);
     }
@@ -259,10 +243,6 @@ const Members = () => {
             </>)}
           </div>
         </div>
-
-        {message.text && (
-          <div className={`alert alert-${message.type}`}>{message.text}</div>
-        )}
 
         <div className="filters">
           <div className="filter-group">

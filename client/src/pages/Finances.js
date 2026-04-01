@@ -7,6 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { AuthContext } from '../context/AuthContext';
 import { FiscalYearContext } from '../context/FiscalYearContext';
+import { useToast } from '../context/ToastContext';
 import './Finances.css';
 
 const API_URL = 'http://127.0.0.1:8080/api';
@@ -38,7 +39,7 @@ const Finances = () => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading]           = useState(true);
   const [txFilter, setTxFilter]         = useState('All');
-  const [message, setMessage]           = useState({ type: '', text: '' });
+  const { showToast } = useToast();
 
   // Modal state
   const [budgetModal, setBudgetModal]     = useState(false);
@@ -69,10 +70,7 @@ const Finances = () => {
     }
   };
 
-  const showMsg = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 3500);
-  };
+  const showMsg = (type, text) => showToast(type, text);
 
   // ── Budget CRUD ──
   const openAddBudget = () => { setSelectedBudget(null); setBudgetForm({ ...emptyBudget, academicYear }); setBudgetModal(true); };
@@ -172,11 +170,6 @@ const Finances = () => {
           </button>
         )}
       </div>
-
-      {/* ── Toast ── */}
-      {message.text && (
-        <div className={`fin-toast fin-toast-${message.type}`}>{message.text}</div>
-      )}
 
       {/* ── Summary Cards ── */}
       <div className="fin-summary-row">

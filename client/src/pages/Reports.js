@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import axios from 'axios';
 import { FiscalYearContext } from '../context/FiscalYearContext';
+import { useToast } from '../context/ToastContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -391,7 +392,7 @@ const Reports = () => {
   const { academicYear } = useContext(FiscalYearContext);
   const [activeTab, setActiveTab] = useState('members');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const { showToast } = useToast();
 
   const [memberData, setMemberData] = useState({ stats: {}, members: [] });
   const [eventData, setEventData] = useState({ stats: {}, events: [] });
@@ -429,10 +430,7 @@ const Reports = () => {
 
   const loaded = useRef({ members: false, events: false, finances: false, minutes: false });
 
-  const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 3500);
-  };
+  const showMessage = (type, text) => showToast(type, text);
 
   const fetchMembers = async (year) => {
     try {
@@ -716,11 +714,6 @@ const Reports = () => {
           <p className="rep-page-sub">Generate reports, export data, and manage meeting records</p>
         </div>
       </div>
-
-      {/* ── Toast ── */}
-      {message.text && (
-        <div className={`rep-toast rep-toast-${message.type}`}>{message.text}</div>
-      )}
 
       {/* ── Tabs ── */}
       <div className="rep-tabs">

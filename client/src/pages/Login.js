@@ -1,8 +1,9 @@
-import React, { useState, useContext } from 'react';
+import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import { useToast } from '../context/ToastContext';
 
 const Login = () => {
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'otp' | 'reset'
@@ -12,49 +13,43 @@ const Login = () => {
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const { login, forgotPassword, verifyOtp, resetPassword } = useContext(AuthContext);
+  const { showToast } = useToast();
   const navigate = useNavigate();
-
-  const clearMessages = () => { setError(''); setSuccess(''); };
 
   // --- LOGIN ---
   const handleLogin = async (e) => {
     e.preventDefault();
-    clearMessages();
     setLoading(true);
     const result = await login(loginData.email, loginData.password);
     setLoading(false);
     if (result.success) {
       navigate('/');
     } else {
-      setError(result.message);
+      showToast('error', result.message);
     }
   };
 
   // --- STEP 1: Send OTP ---
   const handleForgotPassword = async (e) => {
     e.preventDefault();
-    clearMessages();
     setLoading(true);
     const result = await forgotPassword(resetEmail);
     setLoading(false);
     if (result.success) {
-      setSuccess('OTP sent! Check your email.');
+      showToast('success', 'OTP sent! Check your email.');
       setMode('otp');
     } else {
-      setError(result.message);
+      showToast('error', result.message);
     }
   };
 
   // --- STEP 2: Verify OTP ---
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
-    clearMessages();
     setLoading(true);
     const result = await verifyOtp(resetEmail, otp);
     setLoading(false);
@@ -62,35 +57,33 @@ const Login = () => {
       setResetToken(result.resetToken);
       setMode('reset');
     } else {
-      setError(result.message);
+      showToast('error', result.message);
     }
   };
 
   // --- STEP 3: Set New Password ---
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    clearMessages();
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      showToast('error', 'Passwords do not match');
       return;
     }
     setLoading(true);
     const result = await resetPassword(resetToken, newPassword);
     setLoading(false);
     if (result.success) {
-      setSuccess('Password reset successfully! You can now sign in.');
+      showToast('success', 'Password reset successfully! You can now sign in.');
       setMode('login');
       setNewPassword('');
       setConfirmPassword('');
       setResetToken('');
     } else {
-      setError(result.message);
+      showToast('error', result.message);
     }
   };
 
   const switchToLogin = () => {
     setMode('login');
-    clearMessages();
     setOtp('');
     setNewPassword('');
     setConfirmPassword('');
@@ -143,9 +136,6 @@ const Login = () => {
                 <p>Sign in to access the management portal</p>
               </div>
 
-              {error && <div className="alert alert-error"><i className="fas fa-exclamation-circle"></i> {error}</div>}
-              {success && <div className="alert alert-success"><i className="fas fa-check-circle"></i> {success}</div>}
-
               <form onSubmit={handleLogin}>
                 <div className="form-group">
                   <label>Email Address</label>
@@ -187,7 +177,7 @@ const Login = () => {
 
               <p className="login-switch">
                 Forgot your password?{' '}
-                <span onClick={() => { setMode('forgot'); clearMessages(); }}>Reset Password</span>
+                <span onClick={() => setMode('forgot')}>Reset Password</span>
               </p>
             </>
           )}
@@ -199,8 +189,6 @@ const Login = () => {
                 <h2>Reset Password</h2>
                 <p>Enter your email and we'll send you a one-time code</p>
               </div>
-
-              {error && <div className="alert alert-error"><i className="fas fa-exclamation-circle"></i> {error}</div>}
 
               <form onSubmit={handleForgotPassword}>
                 <div className="form-group">
@@ -237,9 +225,6 @@ const Login = () => {
                 <p>A 6-digit code was sent to <strong>{resetEmail}</strong></p>
               </div>
 
-              {error && <div className="alert alert-error"><i className="fas fa-exclamation-circle"></i> {error}</div>}
-              {success && <div className="alert alert-success"><i className="fas fa-check-circle"></i> {success}</div>}
-
               <form onSubmit={handleVerifyOtp}>
                 <div className="form-group">
                   <label>One-Time Password</label>
@@ -264,7 +249,7 @@ const Login = () => {
 
               <p className="login-switch">
                 Didn't receive the code?{' '}
-                <span onClick={() => { setMode('forgot'); clearMessages(); setOtp(''); }}>Resend</span>
+                <span onClick={() => { setMode('forgot'); setOtp(''); }}>Resend</span>
                 {' · '}
                 <span onClick={switchToLogin}>Cancel</span>
               </p>
@@ -278,8 +263,6 @@ const Login = () => {
                 <h2>Set New Password</h2>
                 <p>Create a strong password for your account</p>
               </div>
-
-              {error && <div className="alert alert-error"><i className="fas fa-exclamation-circle"></i> {error}</div>}
 
               <form onSubmit={handleResetPassword}>
                 <div className="form-group">

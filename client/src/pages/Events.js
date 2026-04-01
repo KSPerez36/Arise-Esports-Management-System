@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FiscalYearContext } from '../context/FiscalYearContext';
+import { useToast } from '../context/ToastContext';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -53,7 +54,7 @@ const Events = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
-  const [message, setMessage] = useState({ type: '', text: '' });
+  const { showToast } = useToast();
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(true);
 
@@ -105,10 +106,7 @@ const Events = () => {
     }
   };
 
-  const showMessage = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 3500);
-  };
+  const showMessage = (type, text) => showToast(type, text);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -236,11 +234,6 @@ const Events = () => {
           <span>Add Event</span>
         </button>
       </div>
-
-      {/* ── Alert ── */}
-      {message.text && (
-        <div className={`ev-toast ev-toast-${message.type}`}>{message.text}</div>
-      )}
 
       {/* ── Smart Status Suggestions Banner ── */}
       {showSuggestions && suggestions.length > 0 && (

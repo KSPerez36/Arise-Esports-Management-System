@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { FiscalYearContext } from '../context/FiscalYearContext';
+import { useToast } from '../context/ToastContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserPlus, faEdit, faKey, faTrash, faUserCheck, faUserXmark,
@@ -49,11 +50,8 @@ const Officers = () => {
   const isAdmin = user?.role === 'Admin';
 
   const [activeTab, setActiveTab] = useState(isAdmin ? 'accounts' : 'directory');
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const showMsg = (type, text) => {
-    setMessage({ type, text });
-    setTimeout(() => setMessage({ type: '', text: '' }), 3500);
-  };
+  const { showToast } = useToast();
+  const showMsg = (type, text) => showToast(type, text);
 
   // ── System Accounts state ────────────────────────────────────────────────────
   const [officers, setOfficers]         = useState([]);
@@ -245,10 +243,6 @@ const Officers = () => {
           <p className="off-sub">Manage system accounts and the organizational officer directory</p>
         </div>
       </div>
-
-      {message.text && (
-        <div className={`off-toast off-toast-${message.type}`}>{message.text}</div>
-      )}
 
       {/* ── Tabs ── */}
       <div className="off-tabs">

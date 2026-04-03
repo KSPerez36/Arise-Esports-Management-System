@@ -3,6 +3,7 @@ const router = express.Router();
 const OfficerDirectory = require('../models/OfficerDirectory');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
+const logActivity = require('../utils/activityLogger');
 
 const canAccess = checkRoles('Admin', 'Secretary');
 const adminOnly = checkRoles('Admin');
@@ -26,6 +27,10 @@ router.post('/', auth, canAccess, async (req, res) => {
       return res.status(400).json({ message: 'Name, position, and academic year are required.' });
     }
     const doc = await OfficerDirectory.create({ name, position, studentId, course, yearLevel, email, academicYear, status });
+    await logActivity(req.user._id, 'CREATE', 'OfficerDirectory',
+      `Added officer directory entry: ${doc.name} — ${doc.position} (${doc.academicYear})`,
+      { docId: doc._id }
+    );
     res.status(201).json(doc);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -42,6 +47,10 @@ router.put('/:id', auth, canAccess, async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!doc) return res.status(404).json({ message: 'Officer not found' });
+    await logActivity(req.user._id, 'UPDATE', 'OfficerDirectory',
+      `Updated officer directory entry: ${doc.name} — ${doc.position} (${doc.academicYear})`,
+      { docId: doc._id }
+    );
     res.json(doc);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -53,6 +62,10 @@ router.delete('/:id', auth, adminOnly, async (req, res) => {
   try {
     const doc = await OfficerDirectory.findByIdAndDelete(req.params.id);
     if (!doc) return res.status(404).json({ message: 'Officer not found' });
+    await logActivity(req.user._id, 'DELETE', 'OfficerDirectory',
+      `Deleted officer directory entry: ${doc.name} — ${doc.position} (${doc.academicYear})`,
+      { docId: req.params.id }
+    );
     res.json({ message: 'Officer deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -94,6 +107,11 @@ router.post('/bulk-import', auth, canAccess, async (req, res) => {
         skipped++;
       }
     }
+
+    await logActivity(req.user._id, 'IMPORT', 'OfficerDirectory',
+      `Bulk imported officer directory — ${created} created, ${skipped} skipped`,
+      { created, skipped }
+    );
 
     res.json({ created, skipped, errors });
   } catch (err) {

@@ -7,6 +7,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { sendOTPEmail } = require('../utils/emailService');
+const logActivity = require('../utils/activityLogger');
 
 // @route   POST /api/auth/register
 // @desc    Register a new user (admin)
@@ -108,6 +109,11 @@ router.post(
         { userId: user._id },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
+      );
+
+      await logActivity(user._id, 'LOGIN', 'Auth',
+        `${user.name} (${user.role}) logged in`,
+        { role: user.role }
       );
 
       res.json({
@@ -252,6 +258,11 @@ router.post(
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(newPassword, salt);
       await user.save();
+
+      await logActivity(user._id, 'RESET', 'Auth',
+        `${user.name} (${user.role}) reset their password via OTP`,
+        { role: user.role }
+      );
 
       res.json({ message: 'Password reset successfully' });
     } catch (error) {

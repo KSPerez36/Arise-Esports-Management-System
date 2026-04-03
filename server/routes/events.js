@@ -3,6 +3,7 @@ const router = express.Router();
 const Event = require('../models/Event');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
+const logActivity = require('../utils/activityLogger');
 
 const adminOrPresident = checkRoles('Admin', 'President');
 
@@ -38,6 +39,10 @@ router.post('/', auth, adminOrPresident, async (req, res) => {
       createdBy: req.user.id
     });
     await event.save();
+    await logActivity(req.user._id, 'CREATE', 'Events',
+      `Created event "${event.title}"`,
+      { eventId: event._id }
+    );
     res.status(201).json(event);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -49,6 +54,10 @@ router.put('/:id', auth, adminOrPresident, async (req, res) => {
   try {
     const event = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!event) return res.status(404).json({ message: 'Event not found' });
+    await logActivity(req.user._id, 'UPDATE', 'Events',
+      `Updated event "${event.title}"`,
+      { eventId: event._id }
+    );
     res.json(event);
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
@@ -60,6 +69,10 @@ router.delete('/:id', auth, adminOrPresident, async (req, res) => {
   try {
     const event = await Event.findByIdAndDelete(req.params.id);
     if (!event) return res.status(404).json({ message: 'Event not found' });
+    await logActivity(req.user._id, 'DELETE', 'Events',
+      `Deleted event "${event.title}"`,
+      { eventId: req.params.id }
+    );
     res.json({ message: 'Event deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

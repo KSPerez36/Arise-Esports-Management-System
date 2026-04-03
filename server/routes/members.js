@@ -5,6 +5,7 @@ const Member = require('../models/Member');
 const Transaction = require('../models/Transaction');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
+const logActivity = require('../utils/activityLogger');
 
 // @route   GET /api/members
 // @desc    Get all members (with filtering options)
@@ -110,6 +111,11 @@ router.post(
 
       await member.save();
 
+      await logActivity(req.user._id, 'CREATE', 'Members',
+        `Added member ${member.firstName} ${member.lastName} (${member.studentId})`,
+        { memberId: member._id }
+      );
+
       res.status(201).json(member);
     } catch (error) {
       console.error(error);
@@ -142,6 +148,11 @@ router.put('/:id', auth, checkRoles('Admin', 'Secretary'), async (req, res) => {
     if (remarks !== undefined) member.remarks = remarks;
 
     await member.save();
+
+    await logActivity(req.user._id, 'UPDATE', 'Members',
+      `Updated member ${member.firstName} ${member.lastName} (${member.studentId})`,
+      { memberId: member._id }
+    );
 
     res.json(member);
   } catch (error) {
@@ -200,6 +211,18 @@ router.put('/:id/payment', auth, async (req, res) => {
       });
     }
 
+    if (hasPaid && !wasAlreadyPaid) {
+      await logActivity(req.user._id, 'PAYMENT', 'Members',
+        `Marked ${member.firstName} ${member.lastName} (${member.studentId}) as paid — ₱${member.amountPaid}`,
+        { memberId: member._id, amount: member.amountPaid }
+      );
+    } else if (!hasPaid && wasAlreadyPaid) {
+      await logActivity(req.user._id, 'PAYMENT', 'Members',
+        `Reversed payment for ${member.firstName} ${member.lastName} (${member.studentId})`,
+        { memberId: member._id }
+      );
+    }
+
     res.json(member);
   } catch (error) {
     console.error(error);
@@ -227,6 +250,11 @@ router.put('/:id/status', auth, checkRoles('Admin', 'Secretary'), async (req, re
     member.status = status;
     await member.save();
 
+    await logActivity(req.user._id, 'UPDATE', 'Members',
+      `Changed status of ${member.firstName} ${member.lastName} (${member.studentId}) to ${status}`,
+      { memberId: member._id, status }
+    );
+
     res.json(member);
   } catch (error) {
     console.error(error);
@@ -246,6 +274,11 @@ router.delete('/:id', auth, checkRoles('Admin'), async (req, res) => {
     }
 
     await Member.findByIdAndDelete(req.params.id);
+
+    await logActivity(req.user._id, 'DELETE', 'Members',
+      `Deleted member ${member.firstName} ${member.lastName} (${member.studentId})`,
+      { studentId: member.studentId }
+    );
 
     res.json({ message: 'Member deleted successfully' });
   } catch (error) {
@@ -346,6 +379,11 @@ router.post('/bulk-import', auth, checkRoles('Admin', 'Secretary'), async (req, 
         skipped++;
       }
     }
+
+    await logActivity(req.user._id, 'IMPORT', 'Members',
+      `Bulk imported members — ${created} created, ${skipped} skipped`,
+      { created, skipped }
+    );
 
     res.json({ created, skipped, errors });
   } catch (err) {

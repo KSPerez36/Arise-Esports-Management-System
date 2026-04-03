@@ -4,6 +4,7 @@ const Budget = require('../models/Budget');
 const Transaction = require('../models/Transaction');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
+const logActivity = require('../utils/activityLogger');
 
 const canView  = checkRoles('Admin', 'Treasurer', 'Auditor');
 const canWrite = checkRoles('Admin', 'Treasurer');
@@ -59,6 +60,10 @@ router.get('/budgets', auth, canView, async (req, res) => {
 router.post('/budgets', auth, canWrite, async (req, res) => {
   try {
     const budget = await Budget.create({ ...req.body, createdBy: req.user._id });
+    await logActivity(req.user._id, 'CREATE', 'Finances',
+      `Created budget "${budget.title}" — ₱${budget.totalAmount}`,
+      { budgetId: budget._id, amount: budget.totalAmount }
+    );
     res.status(201).json(budget);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -103,6 +108,10 @@ router.get('/transactions', auth, canView, async (req, res) => {
 router.post('/transactions', auth, canWrite, async (req, res) => {
   try {
     const tx = await Transaction.create({ ...req.body, createdBy: req.user._id });
+    await logActivity(req.user._id, 'CREATE', 'Finances',
+      `Added ${tx.type.toLowerCase()} transaction "${tx.description}" — ₱${tx.amount}`,
+      { transactionId: tx._id, type: tx.type, amount: tx.amount }
+    );
     res.status(201).json(tx);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -123,6 +132,10 @@ router.delete('/transactions/:id', auth, canWrite, async (req, res) => {
   try {
     const tx = await Transaction.findByIdAndDelete(req.params.id);
     if (!tx) return res.status(404).json({ message: 'Transaction not found' });
+    await logActivity(req.user._id, 'DELETE', 'Finances',
+      `Deleted ${tx.type.toLowerCase()} transaction "${tx.description}" — ₱${tx.amount}`,
+      { transactionId: req.params.id, type: tx.type, amount: tx.amount }
+    );
     res.json({ message: 'Transaction deleted' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

@@ -7,6 +7,7 @@ const Event = require('../models/Event');
 const Budget = require('../models/Budget');
 const Transaction = require('../models/Transaction');
 const MeetingMinutes = require('../models/MeetingMinutes');
+const logActivity = require('../utils/activityLogger');
 
 const canAccess = checkRoles('Admin', 'Secretary');
 
@@ -98,6 +99,10 @@ router.post('/meeting-minutes', auth, canAccess, async (req, res) => {
       preparedBy: req.user.name,
       createdBy: req.user._id,
     });
+    await logActivity(req.user._id, 'CREATE', 'Reports',
+      `Created meeting minutes: "${doc.title}"`,
+      { minutesId: doc._id }
+    );
     res.status(201).json(doc);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -117,6 +122,10 @@ router.put('/meeting-minutes/:id', auth, canAccess, async (req, res) => {
       { new: true, runValidators: true }
     );
     if (!doc) return res.status(404).json({ message: 'Minutes not found' });
+    await logActivity(req.user._id, 'UPDATE', 'Reports',
+      `Updated meeting minutes: "${doc.title}"`,
+      { minutesId: doc._id }
+    );
     res.json(doc);
   } catch (err) {
     res.status(400).json({ message: err.message });
@@ -127,6 +136,10 @@ router.delete('/meeting-minutes/:id', auth, canAccess, async (req, res) => {
   try {
     const doc = await MeetingMinutes.findByIdAndDelete(req.params.id);
     if (!doc) return res.status(404).json({ message: 'Minutes not found' });
+    await logActivity(req.user._id, 'DELETE', 'Reports',
+      `Deleted meeting minutes: "${doc.title}"`,
+      { minutesId: req.params.id }
+    );
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

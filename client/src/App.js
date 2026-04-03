@@ -13,6 +13,7 @@ import Officers from './pages/Officers';
 import Events from './pages/Events';
 import Finances from './pages/Finances';
 import Reports from './pages/Reports';
+import ActivityLogs from './pages/ActivityLogs';
 import './App.css';
 
 // Layout wrapper component
@@ -93,6 +94,7 @@ function App() {
 
             <Route path="/finances" element={<PrivateRoute><Finances /></PrivateRoute>} />
             <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
+            <Route path="/activity-logs" element={<PrivateRoute><ActivityLogs /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppLayout>

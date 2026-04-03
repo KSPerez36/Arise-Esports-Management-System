@@ -5,6 +5,7 @@ const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { checkAdmin } = require('../middleware/checkRole');
+const logActivity = require('../utils/activityLogger');
 
 // All routes require authentication and Admin role
 router.use(auth);
@@ -97,6 +98,11 @@ router.post(
 
       await user.save();
 
+      await logActivity(req.user._id, 'CREATE', 'Officers',
+        `Created officer account for ${user.name} (${user.role})`,
+        { officerId: user._id, role: user.role }
+      );
+
       res.status(201).json({
         message: 'Officer account created successfully',
         officer: {
@@ -160,6 +166,11 @@ router.put(
 
       await officer.save();
 
+      await logActivity(req.user._id, 'UPDATE', 'Officers',
+        `Updated officer account for ${officer.name} (${officer.role})`,
+        { officerId: officer._id }
+      );
+
       res.json({
         message: 'Officer updated successfully',
         officer: {
@@ -208,6 +219,11 @@ router.put(
 
       await officer.save();
 
+      await logActivity(req.user._id, 'RESET', 'Officers',
+        `Reset password for officer ${officer.name} (${officer.role})`,
+        { officerId: officer._id }
+      );
+
       res.json({ message: 'Password reset successfully' });
     } catch (error) {
       console.error(error);
@@ -232,6 +248,11 @@ router.delete('/:id', async (req, res) => {
     }
 
     await User.findByIdAndDelete(req.params.id);
+
+    await logActivity(req.user._id, 'DELETE', 'Officers',
+      `Deleted officer account for ${officer.name} (${officer.role})`,
+      { officerId: req.params.id, role: officer.role }
+    );
 
     res.json({ message: 'Officer account deleted successfully' });
   } catch (error) {

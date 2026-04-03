@@ -340,6 +340,14 @@ body {
   margin-bottom: 32px;
 }
 
+/* ── Stat Card color tokens ── */
+.stat-card--blue   { --card-color: #3366FF; --card-bg: rgba(51,102,255,0.08); }
+.stat-card--green  { --card-color: #059669; --card-bg: rgba(5,150,105,0.08); }
+.stat-card--emerald{ --card-color: #10b981; --card-bg: rgba(16,185,129,0.08); }
+.stat-card--red    { --card-color: #ef4444; --card-bg: rgba(239,68,68,0.08); }
+.stat-card--amber  { --card-color: #f59e0b; --card-bg: rgba(245,158,11,0.08); }
+.stat-card--purple { --card-color: #7c3aed; --card-bg: rgba(124,58,237,0.08); }
+
 .stat-card {
   background: white;
   border-radius: 16px;
@@ -348,7 +356,10 @@ body {
   border: 1px solid var(--border-color);
   position: relative;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .stat-card::before {
@@ -358,7 +369,8 @@ body {
   left: 0;
   width: 4px;
   height: 100%;
-  background: var(--gradient-primary);
+  background: var(--card-color, var(--gradient-primary));
+  transition: width 0.25s ease;
 }
 
 .stat-card:hover {
@@ -366,23 +378,44 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-.stat-card h3 {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.stat-card:hover::before {
+  width: 6px;
 }
 
-.stat-card p {
-  font-size: 32px;
-  font-weight: 700;
-  background: var(--gradient-primary);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
+/* Icon badge */
+.stat-card-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--card-bg, rgba(51,102,255,0.08));
+  color: var(--card-color, #3366FF);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.stat-card-label {
+  font-size: 12px !important;
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  margin: 0 !important;
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
+}
+
+.stat-card-value {
+  font-size: 30px !important;
+  font-weight: 700 !important;
+  color: var(--card-color, #3366FF) !important;
+  margin: 0 !important;
+  line-height: 1.1 !important;
+  background: none !important;
+  -webkit-text-fill-color: unset !important;
 }
 
 .flex {
@@ -910,8 +943,8 @@ body {
     font-size: 16px;
   }
 
-  .stat-card p {
-    font-size: 24px;
+  .stat-card-value {
+    font-size: 22px !important;
   }
 
   .btn {

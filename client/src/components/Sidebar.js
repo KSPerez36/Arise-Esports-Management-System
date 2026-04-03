@@ -8,6 +8,7 @@ import {
   faCalendarDays,
   faWallet,
   faFileAlt,
+  faListCheck,
   faClockRotateLeft,
   faRightFromBracket,
   faChevronLeft,
@@ -68,6 +69,12 @@ const Sidebar = () => {
       icon: faFileAlt,
       label: "Reports",
       roles: ["Admin", "Secretary"],
+    },
+    {
+      path: "/tasks",
+      icon: faListCheck,
+      label: "Tasks",
+      roles: ["Admin", "President", "Treasurer", "Secretary", "Auditor"],
     },
     {
       path: "/activity-logs",

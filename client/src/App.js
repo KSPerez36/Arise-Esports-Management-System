@@ -14,6 +14,7 @@ import Events from './pages/Events';
 import Finances from './pages/Finances';
 import Reports from './pages/Reports';
 import ActivityLogs from './pages/ActivityLogs';
+import Tasks from './pages/Tasks';
 import './App.css';
 
 // Layout wrapper component
@@ -95,6 +96,7 @@ function App() {
             <Route path="/finances" element={<PrivateRoute><Finances /></PrivateRoute>} />
             <Route path="/reports" element={<PrivateRoute><Reports /></PrivateRoute>} />
             <Route path="/activity-logs" element={<PrivateRoute><ActivityLogs /></PrivateRoute>} />
+            <Route path="/tasks" element={<PrivateRoute><Tasks /></PrivateRoute>} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </AppLayout>

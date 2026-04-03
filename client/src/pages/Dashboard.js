@@ -111,7 +111,7 @@ const Dashboard = () => {
         {loading ? (
           <div className="dash-loading">Loading statistics...</div>
         ) : (
-          <Stats stats={stats} />
+          <Stats stats={stats} totalIncome={finSummary?.totalIncome ?? null} />
         )}
       </div>
 

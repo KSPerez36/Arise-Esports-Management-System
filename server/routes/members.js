@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body, validationResult } = require('express-validator');
 const Member = require('../models/Member');
+const Transaction = require('../models/Transaction');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
 
@@ -162,6 +163,8 @@ router.put('/:id/payment', auth, async (req, res) => {
       return res.status(404).json({ message: 'Member not found' });
     }
 
+    const wasAlreadyPaid = member.hasPaid;
+
     // Update payment info
     member.hasPaid = hasPaid;
     if (hasPaid) {
@@ -175,6 +178,27 @@ router.put('/:id/payment', auth, async (req, res) => {
     }
 
     await member.save();
+
+    // Auto-record transaction in Finance when payment is marked as paid
+    if (hasPaid && !wasAlreadyPaid && member.amountPaid > 0) {
+      await Transaction.create({
+        type: 'Income',
+        category: 'Membership Fee',
+        amount: member.amountPaid,
+        description: `Membership fee — ${member.firstName} ${member.lastName} (${member.studentId})`,
+        date: member.paymentDate,
+        reference: member.studentId,
+        createdBy: req.user._id,
+      });
+    }
+
+    // Remove auto-created transaction if payment is reversed
+    if (!hasPaid && wasAlreadyPaid) {
+      await Transaction.deleteOne({
+        category: 'Membership Fee',
+        reference: member.studentId,
+      });
+    }
 
     res.json(member);
   } catch (error) {

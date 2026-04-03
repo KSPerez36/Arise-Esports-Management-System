@@ -1,7 +1,6 @@
-import React from 'react';
 import { formatCurrency } from '../utils/helpers';
 
-const Stats = ({ stats }) => {
+const Stats = ({ stats, totalIncome }) => {
   return (
     <div className="stats-grid">
       <div className="stat-card">
@@ -26,7 +25,7 @@ const Stats = ({ stats }) => {
       </div>
       <div className="stat-card">
         <h3>Total Revenue</h3>
-        <p>{formatCurrency(stats.totalRevenue || 0)}</p>
+        <p>{formatCurrency(totalIncome !== null ? totalIncome : (stats.totalRevenue || 0))}</p>
       </div>
     </div>
   );

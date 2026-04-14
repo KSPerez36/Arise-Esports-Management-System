@@ -4,13 +4,15 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 const { startEventReminderScheduler } = require('./utils/eventReminder');
+const { startDbBackupScheduler }      = require('./utils/dbScheduler');
 const app = express();
 
 // Connect to MongoDB
 connectDB();
 
-// Start event reminder scheduler
+// Start schedulers
 startEventReminderScheduler();
+startDbBackupScheduler();
 
 // Middleware
 app.use(cors({
@@ -38,6 +40,7 @@ app.use('/api/reports', require('./routes/reports'));
 app.use('/api/officer-directory', require('./routes/officerDirectory'));
 app.use('/api/activity-logs', require('./routes/activityLogs'));
 app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/database', require('./routes/database'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

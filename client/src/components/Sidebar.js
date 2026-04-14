@@ -10,6 +10,7 @@ import {
   faFileAlt,
   faListCheck,
   faClockRotateLeft,
+  faDatabase,
   faRightFromBracket,
   faChevronLeft,
   faChevronRight,
@@ -42,6 +43,7 @@ const menuGroups = [
     label: "System",
     items: [
       { path: "/activity-logs", icon: faClockRotateLeft, label: "Activity Logs", roles: ["Admin"] },
+      { path: "/database",      icon: faDatabase,        label: "Database",      roles: ["Admin"] },
     ],
   },
 ];

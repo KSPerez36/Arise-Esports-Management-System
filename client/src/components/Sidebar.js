@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -20,6 +20,32 @@ import { FiscalYearContext } from "../context/FiscalYearContext";
 import "./Sidebar.css";
 import { useNavigate } from "react-router-dom";
 
+const menuGroups = [
+  {
+    label: "Overview",
+    items: [
+      { path: "/dashboard", icon: faChartLine, label: "Dashboard", roles: ["Admin","President","Treasurer","Secretary","Auditor"] },
+      { path: "/members",   icon: faUsers,     label: "Members",   roles: ["Admin","President","Treasurer","Secretary","Auditor"] },
+    ],
+  },
+  {
+    label: "Manage",
+    items: [
+      { path: "/officers",  icon: faUserTie,      label: "Officers",  roles: ["Admin","Secretary"] },
+      { path: "/events",    icon: faCalendarDays, label: "Events",    roles: ["Admin","President"] },
+      { path: "/finances",  icon: faWallet,       label: "Finances",  roles: ["Admin","Treasurer","Auditor"] },
+      { path: "/reports",   icon: faFileAlt,      label: "Reports",   roles: ["Admin","Secretary"] },
+      { path: "/tasks",     icon: faListCheck,    label: "Tasks",     roles: ["Admin","President","Treasurer","Secretary","Auditor"] },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { path: "/activity-logs", icon: faClockRotateLeft, label: "Activity Logs", roles: ["Admin"] },
+    ],
+  },
+];
+
 const Sidebar = () => {
   const { user, logout } = useContext(AuthContext);
   const { academicYear, changeAcademicYear, yearOptions } = useContext(FiscalYearContext);
@@ -28,82 +54,25 @@ const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = () => {
-    // ← ADD THIS FUNCTION
     logout();
-    navigate("/"); // Redirect to landing page
+    navigate("/");
   };
 
-  const menuItems = [
-    {
-      path: "/dashboard",
-      icon: faChartLine,
-      label: "Dashboard",
-      roles: ["Admin", "President", "Treasurer", "Secretary", "Auditor"],
-    },
-    {
-      path: "/members",
-      icon: faUsers,
-      label: "Members",
-      roles: ["Admin", "President", "Treasurer", "Secretary", "Auditor"],
-    },
-    {
-      path: "/officers",
-      icon: faUserTie,
-      label: "Officers",
-      roles: ["Admin", "Secretary"],
-    },
-    {
-      path: "/events",
-      icon: faCalendarDays,
-      label: "Events",
-      roles: ["Admin", "President"],
-    },
-    {
-      path: "/finances",
-      icon: faWallet,
-      label: "Finances",
-      roles: ["Admin", "Treasurer", "Auditor"],
-    },
-    {
-      path: "/reports",
-      icon: faFileAlt,
-      label: "Reports",
-      roles: ["Admin", "Secretary"],
-    },
-    {
-      path: "/tasks",
-      icon: faListCheck,
-      label: "Tasks",
-      roles: ["Admin", "President", "Treasurer", "Secretary", "Auditor"],
-    },
-    {
-      path: "/activity-logs",
-      icon: faClockRotateLeft,
-      label: "Activity Logs",
-      roles: ["Admin"],
-    },
-  ];
-
-  const isActive = (path) => {
-    return location.pathname === path;
-  };
-
-  // Filter menu items based on user role
-  const visibleMenuItems = menuItems.filter((item) =>
-    item.roles.includes(user?.role),
-  );
+  const isActive = (path) => location.pathname === path;
 
   return (
     <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+
+      {/* Header */}
       <div className="sidebar-header">
-        <img
-          src="/images/arise-logo.png"
-          alt="Arise Esports"
-          className="sidebar-logo"
-        />
-        {!isCollapsed && <h2>Arise Esports</h2>}
+        <img src="/images/arise-logo.png" alt="Arise Esports" className="sidebar-logo" />
+        <div className="sidebar-brand">
+          <span className="sidebar-brand-name">Arise Esports</span>
+          <span className="sidebar-brand-sub">Management System</span>
+        </div>
       </div>
 
+      {/* Collapse toggle */}
       <button
         className="sidebar-toggle"
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -112,27 +81,36 @@ const Sidebar = () => {
         <FontAwesomeIcon icon={isCollapsed ? faChevronRight : faChevronLeft} />
       </button>
 
+      {/* Nav */}
       <nav className="sidebar-nav">
-        {visibleMenuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`sidebar-item ${isActive(item.path) ? "active" : ""}`}
-            title={item.label}
-          >
-            <span className="sidebar-icon">
-              <FontAwesomeIcon icon={item.icon} />
-            </span>
-            {!isCollapsed && (
-              <span className="sidebar-label">{item.label}</span>
-            )}
-          </Link>
-        ))}
+        {menuGroups.map((group) => {
+          const visible = group.items.filter(item => item.roles.includes(user?.role));
+          if (!visible.length) return null;
+          return (
+            <div key={group.label}>
+              <div className="sidebar-section-label">{group.label}</div>
+              <div className="sidebar-section-divider" />
+              {visible.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`sidebar-item ${isActive(item.path) ? "active" : ""}`}
+                  title={isCollapsed ? item.label : undefined}
+                >
+                  <span className="sidebar-icon">
+                    <FontAwesomeIcon icon={item.icon} />
+                  </span>
+                  <span className="sidebar-label">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          );
+        })}
       </nav>
 
-      {/* ── Academic Year Selector ── */}
+      {/* Academic Year */}
       <div className="sidebar-year">
-        {!isCollapsed && <div className="sidebar-year-label">Academic Year</div>}
+        <div className="sidebar-year-label">Academic Year</div>
         {isCollapsed ? (
           <div className="sidebar-year-icon" title={academicYear}>
             <FontAwesomeIcon icon={faGraduationCap} />
@@ -150,29 +128,22 @@ const Sidebar = () => {
         )}
       </div>
 
+      {/* Footer */}
       <div className="sidebar-footer">
         {user && (
           <>
             <div className="sidebar-user">
-              <div className="user-avatar">
-                {user.name.charAt(0).toUpperCase()}
+              <div className="user-avatar">{user.name.charAt(0).toUpperCase()}</div>
+              <div className="user-info">
+                <div className="user-name">{user.name}</div>
+                <div className="user-role">{user.role}</div>
               </div>
-              {!isCollapsed && (
-                <div className="user-info">
-                  <div className="user-name">{user.name}</div>
-                  <div className="user-role">{user.role}</div>
-                </div>
-              )}
             </div>
-            <button
-              className="sidebar-logout"
-              onClick={handleLogout}
-              title="Logout"
-            >
+            <button className="sidebar-logout" onClick={handleLogout} title="Logout">
               <span className="sidebar-icon">
                 <FontAwesomeIcon icon={faRightFromBracket} />
               </span>
-              {!isCollapsed && <span>Logout</span>}
+              <span>Sign out</span>
             </button>
           </>
         )}

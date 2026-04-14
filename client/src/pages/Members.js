@@ -224,7 +224,7 @@ const Members = () => {
     <div className="container">
       <div className="card">
         <div className="flex-between mb-20">
-          <h2>Members Management</h2>
+          <h2 className="page-title">Members Management</h2>
           <div className="flex-center" style={{ gap: "10px", flexWrap: "wrap" }}>
             <button className="btn btn-secondary" onClick={handleDownloadList}>
               <FontAwesomeIcon icon={faDownload} /> Export CSV

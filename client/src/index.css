@@ -248,6 +248,16 @@ body {
   border-left: 4px solid #dc3545;
 }
 
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #3366FF, #6B2FBF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

@@ -9,6 +9,7 @@ const officerDirectorySchema = new mongoose.Schema({
   email:        { type: String, trim: true, lowercase: true },
   academicYear: { type: String, required: true },
   status:       { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
+  userId:       { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
 }, { timestamps: true });
 
 module.exports = mongoose.model('OfficerDirectory', officerDirectorySchema);

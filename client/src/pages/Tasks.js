@@ -93,12 +93,14 @@ const Tasks = () => {
 
   const fetchOfficers = useCallback(async () => {
     try {
-      const res = await axios.get(`${API_URL}/officers`);
+      const res = await axios.get(`${API_URL}/officer-directory`, {
+        params: { academicYear },
+      });
       setOfficers(res.data);
     } catch {
       // silently fail — officers list is optional enhancement
     }
-  }, []);
+  }, [academicYear]);
 
   useEffect(() => { fetchTasks(); }, [fetchTasks]);
   useEffect(() => { if (isManager) fetchOfficers(); }, [isManager, fetchOfficers]);
@@ -215,7 +217,7 @@ const Tasks = () => {
             <div className="task-avatar">{getInitials(task.assignedTo?.name)}</div>
             <div>
               <span className="task-assignee-name">{task.assignedTo?.name || '—'}</span>
-              <span className="task-assignee-role">{task.assignedTo?.role}</span>
+              <span className="task-assignee-role">{task.assignedTo?.position}</span>
             </div>
           </div>
 
@@ -333,7 +335,7 @@ const Tasks = () => {
           >
             <option value="">All Assignees</option>
             {officers.map(o => (
-              <option key={o._id} value={o._id}>{o.name} ({o.role})</option>
+              <option key={o._id} value={o._id}>{o.name} — {o.position}</option>
             ))}
           </select>
         )}
@@ -408,7 +410,7 @@ const Tasks = () => {
                       <div className="task-avatar">{getInitials(task.assignedTo?.name)}</div>
                       <div>
                         <span className="task-assignee-name">{task.assignedTo?.name || '—'}</span>
-                        <span className="task-assignee-role">{task.assignedTo?.role}</span>
+                        <span className="task-assignee-role">{task.assignedTo?.position}</span>
                       </div>
                     </div>
                     {task.dueDate && (
@@ -479,7 +481,7 @@ const Tasks = () => {
                     <option value="">Select an officer...</option>
                     {officers.map(o => (
                       <option key={o._id} value={o._id}>
-                        {o.name} — {o.role}
+                        {o.name} — {o.position}
                       </option>
                     ))}
                   </select>

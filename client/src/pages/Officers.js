@@ -464,12 +464,26 @@ const Officers = () => {
                 <div className="off-form-group"><label>Email</label><input type="email" value={dirForm.email} onChange={e => setDirForm(f => ({ ...f, email: e.target.value }))} placeholder="email@example.com" /></div>
               </div>
               <div className="off-form-row">
-                <div className="off-form-group"><label>Course</label><input value={dirForm.course} onChange={e => setDirForm(f => ({ ...f, course: e.target.value }))} placeholder="e.g. BSIT" /></div>
+                <div className="off-form-group">
+                  <label>Course</label>
+                  <select value={dirForm.course} onChange={e => setDirForm(f => ({ ...f, course: e.target.value }))}>
+                    <option value="" disabled>Select a course</option>
+                    <option value="BS Information Technology">BS Information Technology</option>
+                    <option value="BS Computer Science">BS Computer Science</option>
+                    <option value="BS Accountancy">BS Accountancy</option>
+                    <option value="BS Accounting Information System">BS Accounting Information System</option>
+                    <option value="BS Secondary Education Major: Science Education">BS Secondary Education Major: Science Education</option>
+                    <option value="BS Secondary Education Major: English Language Education">BS Secondary Education Major: English Language Education</option>
+                    <option value="BS Secondary Education Major: Mathematics Education">BS Secondary Education Major: Mathematics Education</option>
+                    <option value="Bachelor of Elementary Education">Bachelor of Elementary Education</option>
+                    <option value="BS Psychology">BS Psychology</option>
+                  </select>
+                </div>
                 <div className="off-form-group">
                   <label>Year Level</label>
                   <select value={dirForm.yearLevel} onChange={e => setDirForm(f => ({ ...f, yearLevel: e.target.value }))}>
                     <option value="">— Select —</option>
-                    {['1st Year','2nd Year','3rd Year','4th Year','5th Year'].map(y => <option key={y} value={y}>{y}</option>)}
+                    {['1st Year','2nd Year','3rd Year','4th Year'].map(y => <option key={y} value={y}>{y}</option>)}
                   </select>
                 </div>
               </div>

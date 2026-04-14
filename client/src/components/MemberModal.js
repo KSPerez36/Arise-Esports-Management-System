@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
 
+const COURSES = [
+  'BS Information Technology',
+  'BS Computer Science',
+  'BS Accountancy',
+  'BS Accounting Information System',
+  'BS Secondary Education Major: Science Education',
+  'BS Secondary Education Major: English Language Education',
+  'BS Secondary Education Major: Mathematics Education',
+  'Bachelor of Elementary Education',
+  'BS Psychology',
+];
+
 const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear }) => {
   const fallbackYear = defaultAcademicYear || '2024-2025';
 
@@ -44,10 +56,7 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear })
   }, [member, defaultAcademicYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e) => {
@@ -65,6 +74,7 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear })
           <button className="close-btn" onClick={onClose}>&times;</button>
         </div>
         <form onSubmit={handleSubmit}>
+
           <div className="form-group">
             <label>Student ID *</label>
             <input
@@ -74,97 +84,103 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear })
               value={formData.studentId}
               onChange={handleChange}
               required
-              disabled={member ? true : false}
+              disabled={!!member}
             />
           </div>
 
-          <div className="form-group">
-            <label>First Name *</label>
-            <input
-              type="text"
-              name="firstName"
-              className="form-control"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+            <div className="form-group">
+              <label>First Name *</label>
+              <input
+                type="text"
+                name="firstName"
+                className="form-control"
+                value={formData.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Last Name *</label>
+              <input
+                type="text"
+                name="lastName"
+                className="form-control"
+                value={formData.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Last Name *</label>
-            <input
-              type="text"
-              name="lastName"
-              className="form-control"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Email *</label>
-            <input
-              type="email"
-              name="email"
-              className="form-control"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Phone Number</label>
-            <input
-              type="text"
-              name="phoneNumber"
-              className="form-control"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+            <div className="form-group">
+              <label>Email *</label>
+              <input
+                type="email"
+                name="email"
+                className="form-control"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Phone Number</label>
+              <input
+                type="text"
+                name="phoneNumber"
+                className="form-control"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <div className="form-group">
             <label>Course *</label>
-            <input
-              type="text"
+            <select
               name="course"
               className="form-control"
               value={formData.course}
               onChange={handleChange}
               required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Year Level *</label>
-            <select
-              name="yearLevel"
-              className="form-control"
-              value={formData.yearLevel}
-              onChange={handleChange}
-              required
             >
-              <option value="1st Year">1st Year</option>
-              <option value="2nd Year">2nd Year</option>
-              <option value="3rd Year">3rd Year</option>
-              <option value="4th Year">4th Year</option>
-              <option value="5th Year">5th Year</option>
+              <option value="" disabled>Select a course</option>
+              {COURSES.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
 
-          <div className="form-group">
-            <label>Academic Year *</label>
-            <input
-              type="text"
-              name="academicYear"
-              className="form-control"
-              placeholder="e.g., 2024-2025"
-              value={formData.academicYear}
-              onChange={handleChange}
-              required
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 16px' }}>
+            <div className="form-group">
+              <label>Year Level *</label>
+              <select
+                name="yearLevel"
+                className="form-control"
+                value={formData.yearLevel}
+                onChange={handleChange}
+                required
+              >
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>Academic Year *</label>
+              <input
+                type="text"
+                name="academicYear"
+                className="form-control"
+                placeholder="e.g., 2024-2025"
+                value={formData.academicYear}
+                onChange={handleChange}
+                required
+              />
+            </div>
           </div>
 
           <div className="form-group">
@@ -172,7 +188,7 @@ const MemberModal = ({ isOpen, onClose, onSubmit, member, defaultAcademicYear })
             <textarea
               name="remarks"
               className="form-control"
-              rows="3"
+              rows="2"
               value={formData.remarks}
               onChange={handleChange}
             ></textarea>

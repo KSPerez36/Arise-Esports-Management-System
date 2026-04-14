@@ -3,9 +3,18 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
+const OfficerDirectory = require('../models/OfficerDirectory');
 const auth = require('../middleware/auth');
 const { checkAdmin } = require('../middleware/checkRole');
 const logActivity = require('../utils/activityLogger');
+
+// Compute current academic year (Aug–Jul cycle)
+function currentAcademicYear() {
+  const now = new Date();
+  const yr = now.getFullYear();
+  const start = now.getMonth() >= 7 ? yr : yr - 1;
+  return `${start}-${start + 1}`;
+}
 
 // All routes require authentication and Admin role
 router.use(auth);
@@ -98,6 +107,16 @@ router.post(
 
       await user.save();
 
+      // Auto-create linked OfficerDirectory entry
+      await OfficerDirectory.create({
+        name: user.name,
+        position: user.role,
+        email: user.email,
+        academicYear: currentAcademicYear(),
+        status: 'Active',
+        userId: user._id,
+      });
+
       await logActivity(req.user._id, 'CREATE', 'Officers',
         `Created officer account for ${user.name} (${user.role})`,
         { officerId: user._id, role: user.role }
@@ -165,6 +184,17 @@ router.put(
       if (typeof isActive !== 'undefined') officer.isActive = isActive;
 
       await officer.save();
+
+      // Sync linked OfficerDirectory entry if it exists
+      await OfficerDirectory.findOneAndUpdate(
+        { userId: officer._id },
+        {
+          name: officer.name,
+          position: officer.role,
+          email: officer.email,
+          status: officer.isActive ? 'Active' : 'Inactive',
+        }
+      );
 
       await logActivity(req.user._id, 'UPDATE', 'Officers',
         `Updated officer account for ${officer.name} (${officer.role})`,
@@ -248,6 +278,9 @@ router.delete('/:id', async (req, res) => {
     }
 
     await User.findByIdAndDelete(req.params.id);
+
+    // Remove linked OfficerDirectory entry
+    await OfficerDirectory.findOneAndDelete({ userId: officer._id });
 
     await logActivity(req.user._id, 'DELETE', 'Officers',
       `Deleted officer account for ${officer.name} (${officer.role})`,

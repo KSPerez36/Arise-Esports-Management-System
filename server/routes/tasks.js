@@ -1,11 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
+const OfficerDirectory = require('../models/OfficerDirectory');
 const auth = require('../middleware/auth');
 const { checkRoles } = require('../middleware/checkRole');
 const logActivity = require('../utils/activityLogger');
 
 const canManage = checkRoles('Admin', 'President');
+
+// Helper: find the OfficerDirectory entry linked to the logged-in user
+async function getLinkedDirEntry(userId) {
+  return OfficerDirectory.findOne({ userId });
+}
 
 // @route   GET /api/tasks/stats
 // @desc    Task counts by status and priority
@@ -48,11 +54,18 @@ router.get('/', auth, async (req, res) => {
     if (isManager) {
       if (assignedTo) query.assignedTo = assignedTo;
     } else {
-      query.assignedTo = req.user._id;
+      // Find the OfficerDirectory entry linked to this user account
+      const dirEntry = await getLinkedDirEntry(req.user._id);
+      if (dirEntry) {
+        query.assignedTo = dirEntry._id;
+      } else {
+        // No linked directory entry — return empty (no tasks visible)
+        return res.json([]);
+      }
     }
 
     const tasks = await Task.find(query)
-      .populate('assignedTo', 'name role')
+      .populate('assignedTo', 'name position userId')
       .populate('assignedBy', 'name role')
       .sort({ dueDate: 1, createdAt: -1 });
 
@@ -86,7 +99,7 @@ router.post('/', auth, canManage, async (req, res) => {
     });
 
     const populated = await task.populate([
-      { path: 'assignedTo', select: 'name role' },
+      { path: 'assignedTo', select: 'name position userId' },
       { path: 'assignedBy', select: 'name role' },
     ]);
 
@@ -102,22 +115,27 @@ router.post('/', auth, canManage, async (req, res) => {
 });
 
 // @route   PUT /api/tasks/:id
-// @desc    Update a task — managers get full edit; assignees can only update status
-// @access  Admin, President (full) | Assignee (status only)
+// @desc    Update a task — managers full edit; assignees status only
+// @access  Admin, President (full) | Linked assignee (status only)
 router.put('/:id', auth, async (req, res) => {
   try {
     const task = await Task.findById(req.params.id);
     if (!task) return res.status(404).json({ message: 'Task not found' });
 
     const isManager = ['Admin', 'President'].includes(req.user.role);
-    const isAssignee = task.assignedTo.toString() === req.user._id.toString();
+
+    // Check if the logged-in user is the assignee via their linked directory entry
+    let isAssignee = false;
+    if (!isManager) {
+      const dirEntry = await getLinkedDirEntry(req.user._id);
+      isAssignee = dirEntry && task.assignedTo.toString() === dirEntry._id.toString();
+    }
 
     if (!isManager && !isAssignee) {
       return res.status(403).json({ message: 'Not authorized to update this task' });
     }
 
     if (isManager) {
-      // Full update
       const { title, description, priority, status, assignedTo, dueDate } = req.body;
       if (title !== undefined) task.title = title;
       if (description !== undefined) task.description = description;
@@ -129,7 +147,6 @@ router.put('/:id', auth, async (req, res) => {
         task.completedAt = status === 'Done' ? (task.completedAt || new Date()) : null;
       }
     } else {
-      // Assignee: status only
       const { status } = req.body;
       if (status !== undefined) {
         task.status = status;
@@ -140,7 +157,7 @@ router.put('/:id', auth, async (req, res) => {
     await task.save();
 
     const populated = await task.populate([
-      { path: 'assignedTo', select: 'name role' },
+      { path: 'assignedTo', select: 'name position userId' },
       { path: 'assignedBy', select: 'name role' },
     ]);
 

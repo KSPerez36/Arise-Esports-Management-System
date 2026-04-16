@@ -1,0 +1,252 @@
+{
+  "_meta": {
+    "createdAt": "2026-04-15T13:18:14.847Z",
+    "version": "1.0"
+  },
+  "members": [
+    {
+      "_id": "69cf95bd279830efd4dc1335",
+      "studentId": "10999",
+      "firstName": "Mark Lance",
+      "lastName": "Lamucho",
+      "email": "kentnotcant@gmail.com",
+      "phoneNumber": "9282876871",
+      "course": "BSIT",
+      "yearLevel": "1st Year",
+      "academicYear": "2025-2026",
+      "hasPaid": true,
+      "amountPaid": 50,
+      "status": "Official Member",
+      "registrationDate": "2026-04-03T10:26:05.447Z",
+      "createdAt": "2026-04-03T10:26:05.452Z",
+      "updatedAt": "2026-04-03T10:26:17.410Z",
+      "__v": 0,
+      "paymentDate": "2026-04-03T00:00:00.000Z"
+    }
+  ],
+  "events": [],
+  "budgets": [
+    {
+      "_id": "69cf9bff24b4928d3588cba9",
+      "title": "Budget 1",
+      "academicYear": "2025-2026",
+      "totalAmount": 50000,
+      "notes": "",
+      "createdBy": "69bfc9b7ab611638a4885bd7",
+      "createdAt": "2026-04-03T10:52:47.280Z",
+      "updatedAt": "2026-04-03T10:52:47.280Z",
+      "__v": 0
+    }
+  ],
+  "transactions": [
+    {
+      "_id": "69cf95c9279830efd4dc135c",
+      "type": "Income",
+      "category": "Membership Fee",
+      "amount": 50,
+      "description": "Membership fee — Mark Lance Lamucho (10999)",
+      "date": "2026-04-03T00:00:00.000Z",
+      "reference": "10999",
+      "budgetId": null,
+      "createdBy": "69bfc9b7ab611638a4885bd7",
+      "createdAt": "2026-04-03T10:26:17.431Z",
+      "updatedAt": "2026-04-03T10:26:17.431Z",
+      "__v": 0
+    }
+  ],
+  "tasks": [
+    {
+      "_id": "69cfcac56c7140f7b6ce6003",
+      "title": "Letter for Game Expo",
+      "description": "",
+      "priority": "Urgent",
+      "status": "Done",
+      "assignedTo": "69c2665c74ed5f99796c0d61",
+      "assignedBy": "69bfc9b7ab611638a4885bd7",
+      "dueDate": "2026-04-06T00:00:00.000Z",
+      "academicYear": "2025-2026",
+      "completedAt": "2026-04-03T14:12:50.801Z",
+      "createdAt": "2026-04-03T14:12:21.737Z",
+      "updatedAt": "2026-04-03T14:12:50.801Z",
+      "__v": 0
+    }
+  ],
+  "officerDirectory": [
+    {
+      "_id": "69d0b56f8e23a9e838c577ba",
+      "name": "Jerry",
+      "position": "Secretary",
+      "email": "ksperez.degullado@gmail.com",
+      "academicYear": "2025-2026",
+      "status": "Active",
+      "userId": "69c2665c74ed5f99796c0d61",
+      "createdAt": "2026-04-04T06:53:35.024Z",
+      "updatedAt": "2026-04-04T06:53:35.024Z",
+      "__v": 0
+    },
+    {
+      "_id": "69d0b56f8e23a9e838c577bd",
+      "name": "Kim",
+      "position": "Treasurer",
+      "email": "kentnotcant@gmail.com",
+      "academicYear": "2025-2026",
+      "status": "Active",
+      "userId": "69c50c3407fdd69ca7220d1c",
+      "createdAt": "2026-04-04T06:53:35.028Z",
+      "updatedAt": "2026-04-04T06:53:35.028Z",
+      "__v": 0
+    }
+  ],
+  "meetingMinutes": [
+    {
+      "_id": "69c66cea7eca217fa9ec3659",
+      "title": "General Assembly",
+      "eventDetails": "Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum",
+      "date": "2026-03-27T00:00:00.000Z",
+      "timeStarted": "9:00 AM",
+      "timeEnded": "10:00 AM",
+      "venue": "Google Meet",
+      "agendaItems": [
+        "Lorem ipsum",
+        "Lorem ipsum",
+        "Lorem ipsum"
+      ],
+      "meetingDetails": [
+        {
+          "agendaTitle": "Lorem ipsum",
+          "toDoItems": [
+            "Lorem ipsum",
+            ""
+          ],
+          "toNoteItems": [
+            {
+              "title": "Lorem ipsum",
+              "bullets": [
+                "Lorem ipsum",
+                "Lorem ipsum",
+                "Lorem ipsum"
+              ]
+            },
+            {
+              "title": "",
+              "bullets": [
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "agendaTitle": "Lorem ipsum",
+          "toDoItems": [
+            "Lorem ipsum",
+            ""
+          ],
+          "toNoteItems": [
+            {
+              "title": "Lorem ipsum",
+              "bullets": [
+                ""
+              ]
+            },
+            {
+              "title": "",
+              "bullets": [
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "agendaTitle": "Lorem ipsum",
+          "toDoItems": [
+            "Lorem ipsum",
+            ""
+          ],
+          "toNoteItems": [
+            {
+              "title": "Lorem ipsum",
+              "bullets": [
+                ""
+              ]
+            },
+            {
+              "title": "",
+              "bullets": [
+                ""
+              ]
+            }
+          ]
+        }
+      ],
+      "additionalNotes": [
+        "Lorem ipsum",
+        ""
+      ],
+      "attendance": [
+        {
+          "name": "Kent Steven",
+          "status": "Present"
+        },
+        {
+          "name": "Kim Clarrisse",
+          "status": "Present"
+        },
+        {
+          "name": "Tino Kol Me",
+          "status": "Present"
+        },
+        {
+          "name": "Jay Jerry Jr",
+          "status": "Present"
+        },
+        {
+          "name": "",
+          "status": "Present"
+        }
+      ],
+      "preparedBy": "Jerry",
+      "createdBy": "69c2665c74ed5f99796c0d61",
+      "createdAt": "2026-03-27T11:41:30.737Z",
+      "updatedAt": "2026-03-27T11:41:30.737Z",
+      "__v": 0
+    }
+  ],
+  "users": [
+    {
+      "_id": "69bfc9b7ab611638a4885bd7",
+      "name": "Kent",
+      "email": "kdperez@ccc.edu.ph",
+      "password": "$2b$10$PfqYJ18oi2Dk0BoLzq0GFuZWatE7bxzakb17fU2A61zC1z.x/x.UO",
+      "role": "Admin",
+      "isActive": true,
+      "resetOTP": null,
+      "resetOTPExpiry": null,
+      "createdAt": "2026-03-22T10:51:35.644Z",
+      "__v": 0
+    },
+    {
+      "_id": "69c2665c74ed5f99796c0d61",
+      "name": "Jerry",
+      "email": "ksperez.degullado@gmail.com",
+      "password": "$2b$10$/cbHY9Iq1R8pTkTyE4sj/OhgqrvAX2XH2Za/yX5y6DcnvW9WBkl5m",
+      "role": "Secretary",
+      "isActive": true,
+      "resetOTP": "$2b$10$h5c9fHmMkrp1L1e6VfB/BeHXR4KfQ8/TFKssAgbddFKPuSkaM9mbu",
+      "resetOTPExpiry": "2026-04-14T13:41:20.601Z",
+      "createdAt": "2026-03-24T10:24:28.956Z",
+      "__v": 0
+    },
+    {
+      "_id": "69c50c3407fdd69ca7220d1c",
+      "name": "Kim",
+      "email": "kentnotcant@gmail.com",
+      "password": "$2b$10$zYy2Og92HDIx.Vy/JEo2d.pi745aDrM7d3JNIZqvUCAzPyhuBzwuK",
+      "role": "Treasurer",
+      "isActive": true,
+      "resetOTP": null,
+      "resetOTPExpiry": null,
+      "createdAt": "2026-03-26T10:36:36.224Z",
+      "__v": 0
+    }
+  ]
+}

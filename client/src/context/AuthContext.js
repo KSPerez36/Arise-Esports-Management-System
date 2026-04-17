@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 export const AuthContext = createContext();
@@ -9,9 +9,30 @@ const API_URL = 'http://127.0.0.1:8080/api';
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const userRef = useRef(null);
+
+  // Keep ref in sync so the interceptor can read current user without stale closure
+  useEffect(() => { userRef.current = user; }, [user]);
 
   useEffect(() => {
     checkAuth();
+  }, []);
+
+  // Auto-logout when the server rejects the token (401)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      res => res,
+      err => {
+        if (err.response?.status === 401 && userRef.current) {
+          localStorage.removeItem('token');
+          delete axios.defaults.headers.common['Authorization'];
+          setUser(null);
+          window.location.href = '/login';
+        }
+        return Promise.reject(err);
+      }
+    );
+    return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
   const checkAuth = async () => {
@@ -40,9 +61,10 @@ export const AuthProvider = ({ children }) => {
       setUser(res.data.user);
       return { success: true };
     } catch (error) {
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+      return {
+        success: false,
+        status: error.response?.status,
+        message: error.response?.data?.message || 'Login failed'
       };
     }
   };

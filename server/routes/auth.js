@@ -3,11 +3,29 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { sendOTPEmail } = require('../utils/emailService');
 const logActivity = require('../utils/activityLogger');
+
+// ── Rate Limiters ──
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: { message: 'Too many login attempts. Please try again in 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const resetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5,
+  message: { message: 'Too many password reset requests. Try again in an hour.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // @route   POST /api/auth/register
 // @desc    Register a new user (admin)
@@ -17,7 +35,9 @@ router.post(
   [
     body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Please enter a valid email'),
-    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+    body('password')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+      .matches(/\d/).withMessage('Password must contain at least one number'),
     body('role').isIn(['Admin', 'President', 'Treasurer', 'Secretary', 'Auditor']).withMessage('Invalid role')
   ],
   async (req, res) => {
@@ -78,13 +98,13 @@ router.post(
 // @access  Public
 router.post(
   '/login',
+  loginLimiter,
   [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('password').notEmpty().withMessage('Password is required')
   ],
   async (req, res) => {
     try {
-      // Validate input
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -92,19 +112,41 @@ router.post(
 
       const { email, password } = req.body;
 
-      // Check if user exists
       const user = await User.findOne({ email });
       if (!user) {
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
-      // Check password
+      // Check account lockout
+      if (user.lockedUntil && user.lockedUntil > Date.now()) {
+        const minutesLeft = Math.ceil((user.lockedUntil - Date.now()) / 60000);
+        return res.status(423).json({
+          message: `Account locked due to too many failed attempts. Try again in ${minutesLeft} minute${minutesLeft !== 1 ? 's' : ''}.`
+        });
+      }
+
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
+        // Track failed attempt
+        user.loginAttempts += 1;
+        if (user.loginAttempts >= 5) {
+          user.lockedUntil = new Date(Date.now() + 30 * 60 * 1000); // 30-min lockout
+          user.loginAttempts = 0;
+          await user.save();
+          return res.status(423).json({
+            message: 'Account locked due to too many failed attempts. Try again in 30 minutes.'
+          });
+        }
+        await user.save();
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
-      // Create JWT token
+      // Successful login — clear lockout state
+      user.loginAttempts = 0;
+      user.lockedUntil   = null;
+      user.lastLoginAt   = new Date();
+      await user.save();
+
       const token = jwt.sign(
         { userId: user._id },
         process.env.JWT_SECRET,
@@ -137,6 +179,7 @@ router.post(
 // @access  Public
 router.post(
   '/forgot-password',
+  resetLimiter,
   [body('email').isEmail().withMessage('Please enter a valid email')],
   async (req, res) => {
     try {
@@ -172,6 +215,7 @@ router.post(
 // @access  Public
 router.post(
   '/verify-otp',
+  resetLimiter,
   [
     body('email').isEmail().withMessage('Please enter a valid email'),
     body('otp').notEmpty().withMessage('OTP is required')
@@ -226,7 +270,11 @@ router.post(
 // @access  Public (reset token required)
 router.post(
   '/reset-password',
-  [body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')],
+  [
+    body('newPassword')
+      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+      .matches(/\d/).withMessage('Password must contain at least one number')
+  ],
   async (req, res) => {
     try {
       const errors = validationResult(req);

@@ -188,6 +188,7 @@ const LandingPage = () => {
       {/* ── Stats ── */}
       <section className="stats-section" ref={statsRef}>
         <div className="container">
+          <p className="stats-eyebrow">◈ &nbsp; Arise Esports &nbsp; ◈</p>
           <div className="stats-grid">
             <div className="stat-item" data-aos="fade-up" data-aos-delay="0">
               <h2 className="stat-number">150+</h2>

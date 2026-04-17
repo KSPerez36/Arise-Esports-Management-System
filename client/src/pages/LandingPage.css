@@ -284,54 +284,79 @@ html:has(.landing-page) ::-webkit-scrollbar-thumb:hover {
    STATS
 ════════════════════════════════════════ */
 #root .landing-page .stats-section {
-  padding: 90px 0;
+  padding: 70px 0 80px;
   background: linear-gradient(180deg, #0f0f22 0%, #16213e 100%);
   position: relative;
   z-index: 2;
 }
 
+#root .landing-page .stats-eyebrow {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(100, 140, 255, 0.7);
+  margin-bottom: 40px;
+}
+
 #root .landing-page .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 36px;
-  max-width: 1100px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
 #root .landing-page .stat-item {
   text-align: center;
-  padding: 32px 24px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 32px 20px 28px;
   border-radius: 16px;
-  border: 1px solid rgba(51, 102, 255, 0.2);
+  border: 1px solid rgba(51, 102, 255, 0.15);
+  /* Gradient top-border accent */
+  background:
+    linear-gradient(#111128, #111128) padding-box,
+    linear-gradient(135deg, #3366FF, #6B2FBF) border-box;
+  border-top: 2px solid transparent;
   transition: all 0.3s ease;
-  backdrop-filter: blur(8px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle inner glow at top */
+#root .landing-page .stat-item::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(180deg, rgba(51, 102, 255, 0.08) 0%, transparent 100%);
+  pointer-events: none;
 }
 
 #root .landing-page .stat-item:hover {
-  transform: translateY(-10px);
-  background: rgba(51, 102, 255, 0.09);
+  transform: translateY(-6px);
   border-color: rgba(51, 102, 255, 0.5);
-  box-shadow: 0 10px 36px rgba(51, 102, 255, 0.28);
+  box-shadow: 0 12px 40px rgba(51, 102, 255, 0.22);
 }
 
 #root .landing-page .stat-number {
-  font-size: 3.8rem;
+  font-size: 3.4rem;
   font-weight: 900;
-  background: linear-gradient(135deg, #5588ff 0%, #9b6fff 100%);
+  background: linear-gradient(135deg, #7aafff 0%, #b388ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   line-height: 1;
+  filter: drop-shadow(0 0 18px rgba(100, 160, 255, 0.4));
 }
 
 #root .landing-page .stat-label {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
   letter-spacing: 2.5px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ════════════════════════════════════════
@@ -1014,6 +1039,11 @@ html:has(.landing-page) ::-webkit-scrollbar-thumb:hover {
 
   #root .landing-page .section-title {
     font-size: 1.8rem;
+  }
+
+  #root .landing-page .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 
   #root .landing-page .stat-number {

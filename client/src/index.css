@@ -1116,3 +1116,40 @@ body {
     padding: 8px 10px;
   }
 }
+
+/* ── Password Strength Indicator ── */
+.pw-strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 7px;
+}
+
+.pw-strength-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.pw-strength-bars span {
+  display: block;
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: #e2e8f0;
+  transition: background 0.2s ease;
+}
+
+.pw-strength-weak   .pw-strength-bars span.active { background: #ef4444; }
+.pw-strength-fair   .pw-strength-bars span.active { background: #f59e0b; }
+.pw-strength-strong .pw-strength-bars span.active { background: #10b981; }
+
+.pw-strength-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pw-strength-weak   .pw-strength-label { color: #ef4444; }
+.pw-strength-fair   .pw-strength-label { color: #f59e0b; }
+.pw-strength-strong .pw-strength-label { color: #10b981; }

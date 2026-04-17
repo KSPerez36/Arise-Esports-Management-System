@@ -20,6 +20,22 @@ const Login = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
+  // Password strength helper
+  const getPasswordStrength = (pw) => {
+    if (!pw) return null;
+    const hasLength  = pw.length >= 8;
+    const hasNumber  = /\d/.test(pw);
+    const hasUpper   = /[A-Z]/.test(pw);
+    const hasSpecial = /[^A-Za-z0-9]/.test(pw);
+    const score = [hasLength, hasNumber, hasUpper, hasSpecial].filter(Boolean).length;
+    if (score <= 1) return 'weak';
+    if (score === 2) return 'fair';
+    return 'strong';
+  };
+
+  const strengthLabel = { weak: 'Weak', fair: 'Fair', strong: 'Strong' };
+  const pwStrength = getPasswordStrength(newPassword);
+
   // --- LOGIN ---
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,6 +45,7 @@ const Login = () => {
     if (result.success) {
       navigate('/');
     } else {
+      // 423 = account locked, 429 = rate limited — show the server message directly
       showToast('error', result.message);
     }
   };
@@ -64,6 +81,10 @@ const Login = () => {
   // --- STEP 3: Set New Password ---
   const handleResetPassword = async (e) => {
     e.preventDefault();
+    if (newPassword.length < 8 || !/\d/.test(newPassword)) {
+      showToast('error', 'Password must be at least 8 characters and contain a number.');
+      return;
+    }
     if (newPassword !== confirmPassword) {
       showToast('error', 'Passwords do not match');
       return;
@@ -272,12 +293,22 @@ const Login = () => {
                     <input
                       type="password"
                       className="form-control"
-                      placeholder="At least 6 characters"
+                      placeholder="Min. 8 characters, at least 1 number"
                       value={newPassword}
                       onChange={e => setNewPassword(e.target.value)}
                       required
                     />
                   </div>
+                  {pwStrength && (
+                    <div className={`pw-strength pw-strength-${pwStrength}`}>
+                      <div className="pw-strength-bars">
+                        <span className={pwStrength === 'weak' || pwStrength === 'fair' || pwStrength === 'strong' ? 'active' : ''} />
+                        <span className={pwStrength === 'fair' || pwStrength === 'strong' ? 'active' : ''} />
+                        <span className={pwStrength === 'strong' ? 'active' : ''} />
+                      </div>
+                      <span className="pw-strength-label">{strengthLabel[pwStrength]}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">

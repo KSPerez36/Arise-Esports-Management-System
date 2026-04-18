@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './Events.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080/api';
 
 const STATUS_META = {
   Planning:  { color: '#8b5cf6', bg: '#f5f3ff', icon: faClipboardList },

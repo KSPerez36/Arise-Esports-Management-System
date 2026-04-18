@@ -2,7 +2,7 @@ import { useState } from 'react';
 import axios from 'axios';
 import './PublicRegistration.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080/api';
 
 const YEAR_LEVELS = ['1st Year', '2nd Year', '3rd Year', '4th Year'];
 

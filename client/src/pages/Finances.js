@@ -10,7 +10,7 @@ import { FiscalYearContext } from '../context/FiscalYearContext';
 import { useToast } from '../context/ToastContext';
 import './Finances.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080/api';
 
 const CATEGORIES = ['Membership Fee', 'Sponsorship', 'Event Expense', 'Equipment', 'Utilities', 'Miscellaneous'];
 

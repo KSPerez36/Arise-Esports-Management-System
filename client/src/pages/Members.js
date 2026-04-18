@@ -47,7 +47,7 @@ function validateMemberRow(row) {
   return null;
 }
 
-const API_URL = "http://127.0.0.1:8080/api";
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080/api';
 
 const Members = () => {
   const { user } = useContext(AuthContext);

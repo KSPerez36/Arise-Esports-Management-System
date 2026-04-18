@@ -15,7 +15,7 @@ import {
 import Stats from '../components/Stats';
 import './Dashboard.css';
 
-const API_URL = 'http://127.0.0.1:8080/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8080/api';
 
 const fmt = (n) => new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(n || 0);
 

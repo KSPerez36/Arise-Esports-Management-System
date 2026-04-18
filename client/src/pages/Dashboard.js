@@ -6,7 +6,7 @@ import { FiscalYearContext } from '../context/FiscalYearContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChartPie, faArrowDown, faArrowUp, faWallet,
-  faUsers, faChartLine
+  faUsers, faChartLine, faLightbulb, faUserCheck, faUserMinus, faUserPlus
 } from '@fortawesome/free-solid-svg-icons';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -41,15 +41,23 @@ const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const { academicYear } = useContext(FiscalYearContext);
   const navigate = useNavigate();
-  const canViewFinance = ['Admin', 'Treasurer', 'Auditor'].includes(user?.role);
+  const canViewFinance  = ['Admin', 'Treasurer', 'Auditor'].includes(user?.role);
+  const canViewInsights = ['Admin', 'President'].includes(user?.role);
 
-  const [stats, setStats]           = useState({});
-  const [loading, setLoading]       = useState(true);
-  const [finSummary, setFinSummary] = useState(null);
+  const [stats, setStats]             = useState({});
+  const [loading, setLoading]         = useState(true);
+  const [finSummary, setFinSummary]   = useState(null);
   const [monthlyData, setMonthlyData] = useState([]);
+  const [retention, setRetention]     = useState(null);
 
   useEffect(() => { fetchStats(); }, [academicYear]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (canViewFinance) fetchFinanceData(); }, [academicYear, canViewFinance]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (canViewFinance)  fetchFinanceData(); }, [academicYear, canViewFinance]);  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (canViewInsights) fetchRetention();   }, [academicYear, canViewInsights]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const getPreviousYear = (yr) => {
+    const [start] = yr.split('-').map(Number);
+    return `${start - 1}-${start}`;
+  };
 
   const fetchStats = async () => {
     try {
@@ -73,6 +81,18 @@ const Dashboard = () => {
       setMonthlyData(monthly.data);
     } catch (err) {
       console.error('Error fetching finance data:', err);
+    }
+  };
+
+  const fetchRetention = async () => {
+    const previousYear = getPreviousYear(academicYear);
+    try {
+      const res = await axios.get(
+        `${API_URL}/members/retention?previousYear=${previousYear}&currentYear=${academicYear}`
+      );
+      setRetention(res.data);
+    } catch {
+      setRetention(null);
     }
   };
 
@@ -115,7 +135,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {/* ── Finance Charts (Admin only) ── */}
+      {/* ── Finance Charts (Admin / Treasurer / Auditor) ── */}
       {canViewFinance && finSummary && (
         <div className="dash-section">
           <div className="dash-section-header">
@@ -126,7 +146,6 @@ const Dashboard = () => {
             <span className="dash-section-badge">Current Year</span>
           </div>
 
-          {/* Finance Summary Cards */}
           <div className="dash-fin-cards">
             <div className="dash-fin-card dash-fin-card-budget">
               <div className="dash-fin-card-icon"><FontAwesomeIcon icon={faChartPie} /></div>
@@ -158,43 +177,39 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Charts */}
           <div className="dash-charts-grid">
-
-            {/* Bar Chart — Monthly Income vs Expense */}
             <div className="dash-chart-card">
               <p className="dash-chart-title">
                 Monthly Income vs Expenses
                 <span className="dash-chart-sub">Current year breakdown</span>
               </p>
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={monthlyData} margin={{ top: 4, right: 8, left: 8, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                   <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} tickFormatter={v => `₱${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: 12, paddingTop: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
                   <Bar dataKey="income"  name="Income"  fill="#3366FF" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            {/* Donut Chart — Budget Utilization */}
             <div className="dash-chart-card">
               <p className="dash-chart-title">
                 Budget Utilization
                 <span className="dash-chart-sub">Spent vs remaining</span>
               </p>
               <div className="dash-donut-wrap" style={{ position: 'relative' }}>
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
                     <Pie
                       data={donutData.every(d => d.value === 0) ? [{ name: 'No data', value: 1 }] : donutData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={65}
-                      outerRadius={95}
+                      innerRadius={55}
+                      outerRadius={78}
                       paddingAngle={donutData.every(d => d.value === 0) ? 0 : 3}
                       dataKey="value"
                       startAngle={90}
@@ -215,7 +230,55 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
 
+      {/* ── AI Insights (Admin / President) ── */}
+      {canViewInsights && (
+        <div className="dash-section">
+          <div className="dash-section-header">
+            <h2 className="dash-section-title">
+              <FontAwesomeIcon icon={faLightbulb} style={{ marginRight: 8, color: '#f59e0b' }} />
+              AI Insights
+            </h2>
+            <span className="dash-section-badge">{getPreviousYear(academicYear)} → {academicYear}</span>
+          </div>
+
+          <div className="dash-insights-card">
+            {!retention || retention.previousOfficialCount === 0 ? (
+              <p className="dash-insights-empty">
+                {!retention
+                  ? 'No prior year data available to compute retention.'
+                  : `No official members found in ${retention.previousYear}.`}
+              </p>
+            ) : (
+              <div className="dash-insights-inline">
+                <div className="dash-insight-stat">
+                  <FontAwesomeIcon icon={faUsers} className="dash-insight-icon dash-insight-blue" />
+                  <div><div className="dash-insight-val">{retention.retentionRate}%</div><div className="dash-insight-label">Retention Rate</div></div>
+                </div>
+                <div className="dash-insight-stat">
+                  <FontAwesomeIcon icon={faUserCheck} className="dash-insight-icon dash-insight-green" />
+                  <div><div className="dash-insight-val">{retention.returningCount}</div><div className="dash-insight-label">Returned</div></div>
+                </div>
+                <div className="dash-insight-stat">
+                  <FontAwesomeIcon icon={faUserMinus} className="dash-insight-icon dash-insight-red" />
+                  <div><div className="dash-insight-val">{retention.lapsedCount}</div><div className="dash-insight-label">Lapsed</div></div>
+                </div>
+                <div className="dash-insight-stat">
+                  <FontAwesomeIcon icon={faUserPlus} className="dash-insight-icon dash-insight-purple" />
+                  <div><div className="dash-insight-val">{retention.newMembersCount}</div><div className="dash-insight-label">New This Year</div></div>
+                </div>
+                {retention.lapsedCount > 0 && (
+                  <p className="dash-insights-note">
+                    {retention.lapsedCount} member{retention.lapsedCount !== 1 ? 's' : ''} from {retention.previousYear} did not return.
+                    {retention.retentionRate < 60 ? ' ⚠ Below 60% — consider outreach.' : ''}
+                    {' '}See Retention tab in Reports.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}

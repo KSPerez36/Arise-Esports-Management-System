@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FiscalYearContext } from '../context/FiscalYearContext';
+import { AuthContext } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +8,7 @@ import {
   faCalendarPlus, faEdit, faTrash, faChevronLeft, faChevronRight,
   faCalendarDays, faLocationDot, faAlignLeft, faCalendarCheck,
   faSpinner, faBan, faClipboardList, faHourglass, faLightbulb,
-  faArrowRight, faCheck, faCheckDouble, faXmark
+  faArrowRight, faCheck, faCheckDouble, faXmark, faUserCheck, faUsers
 } from '@fortawesome/free-solid-svg-icons';
 import './Events.css';
 
@@ -41,10 +42,21 @@ function smartDate(academicYear) {
 
 const Events = () => {
   const { academicYear } = useContext(FiscalYearContext);
+  const { user } = useContext(AuthContext);
+  const canMarkAttendance = ['Admin', 'President', 'Secretary'].includes(user?.role);
+
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('All');
   const [selectedDay, setSelectedDay] = useState(null);
+
+  // Attendance modal state
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [attendanceEvent, setAttendanceEvent] = useState(null);
+  const [allMembers, setAllMembers] = useState([]);
+  const [checkedIds, setCheckedIds] = useState(new Set());
+  const [attSearch, setAttSearch] = useState('');
+  const [attLoading, setAttLoading] = useState(false);
 
   const today = new Date();
   const [calMonth, setCalMonth] = useState(today.getMonth());
@@ -136,6 +148,48 @@ const Events = () => {
       setSelectedEvent(null);
     } catch (err) {
       showMessage('error', 'Failed to delete event.');
+    }
+  };
+
+  const openAttendanceModal = async (ev) => {
+    setAttendanceEvent(ev);
+    setAttSearch('');
+    setAttLoading(true);
+    setShowAttendanceModal(true);
+    try {
+      const res = await axios.get(`${API_URL}/members?status=Official Member&academicYear=${academicYear}`);
+      setAllMembers(res.data);
+      // Pre-check saved attendees
+      const saved = new Set((ev.attendees || []).map(id => String(id)));
+      setCheckedIds(saved);
+    } catch {
+      showMessage('error', 'Failed to load members.');
+    } finally {
+      setAttLoading(false);
+    }
+  };
+
+  const toggleMember = (id) => {
+    setCheckedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const saveAttendance = async () => {
+    try {
+      const res = await axios.put(`${API_URL}/events/${attendanceEvent._id}/attendance`, {
+        attendeeIds: [...checkedIds],
+      });
+      // Update local event attendees so re-opening shows correct state
+      setEvents(prev => prev.map(ev =>
+        ev._id === attendanceEvent._id ? { ...ev, attendees: [...checkedIds] } : ev
+      ));
+      showMessage('success', `Attendance saved — ${res.data.attendeeCount} members present.`);
+      setShowAttendanceModal(false);
+    } catch {
+      showMessage('error', 'Failed to save attendance.');
     }
   };
 
@@ -437,6 +491,18 @@ const Events = () => {
                     </div>
 
                     <div className="ev-item-actions">
+                      {canMarkAttendance && ['Completed', 'Ongoing'].includes(event.status) && (
+                        <button
+                          className="ev-action-btn ev-action-attendance"
+                          onClick={() => openAttendanceModal(event)}
+                          title={`Attendance${event.attendees?.length ? ` (${event.attendees.length})` : ''}`}
+                        >
+                          <FontAwesomeIcon icon={faUserCheck} />
+                          {event.attendees?.length > 0 && (
+                            <span className="ev-att-count">{event.attendees.length}</span>
+                          )}
+                        </button>
+                      )}
                       <button className="ev-action-btn ev-action-edit" onClick={() => openEditModal(event)} title="Edit">
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
@@ -534,6 +600,76 @@ const Events = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Attendance Modal ── */}
+      {showAttendanceModal && (
+        <div className="ev-overlay" onClick={() => setShowAttendanceModal(false)}>
+          <div className="ev-modal ev-modal-attendance" onClick={e => e.stopPropagation()}>
+            <div className="ev-modal-top">
+              <div className="ev-modal-title-group">
+                <div className="ev-modal-icon">
+                  <FontAwesomeIcon icon={faUserCheck} />
+                </div>
+                <div>
+                  <h2>Attendance</h2>
+                  <p>{attendanceEvent?.title} — <strong>{checkedIds.size}</strong> of {allMembers.length} present</p>
+                </div>
+              </div>
+              <button className="ev-modal-close" onClick={() => setShowAttendanceModal(false)}>×</button>
+            </div>
+
+            <div className="ev-att-search-wrap">
+              <input
+                type="text"
+                className="ev-att-search"
+                placeholder="Search by name or student ID..."
+                value={attSearch}
+                onChange={e => setAttSearch(e.target.value)}
+              />
+            </div>
+
+            {attLoading ? (
+              <div className="ev-att-loading"><FontAwesomeIcon icon={faSpinner} spin /> Loading members...</div>
+            ) : allMembers.length === 0 ? (
+              <div className="ev-att-empty">
+                <FontAwesomeIcon icon={faUsers} />
+                <p>No official members found for {academicYear}.</p>
+              </div>
+            ) : (
+              <div className="ev-att-list">
+                {allMembers
+                  .filter(m => {
+                    const q = attSearch.toLowerCase();
+                    return !q ||
+                      m.firstName.toLowerCase().includes(q) ||
+                      m.lastName.toLowerCase().includes(q) ||
+                      m.studentId.toLowerCase().includes(q);
+                  })
+                  .map(m => (
+                    <label key={m._id} className={`ev-att-row${checkedIds.has(m._id) ? ' ev-att-row-checked' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={checkedIds.has(m._id)}
+                        onChange={() => toggleMember(m._id)}
+                      />
+                      <span className="ev-att-name">{m.lastName}, {m.firstName}</span>
+                      <span className="ev-att-id">{m.studentId}</span>
+                      <span className="ev-att-meta">{m.yearLevel}</span>
+                    </label>
+                  ))
+                }
+              </div>
+            )}
+
+            <div className="ev-form-actions">
+              <button className="ev-submit-btn" onClick={saveAttendance} disabled={attLoading}>
+                <FontAwesomeIcon icon={faCheck} /> Save Attendance
+              </button>
+              <button className="ev-cancel-btn" onClick={() => setShowAttendanceModal(false)}>Cancel</button>
+            </div>
           </div>
         </div>
       )}

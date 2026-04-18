@@ -47,6 +47,47 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// @route   GET /api/members/retention
+// @desc    Cross-year retention analytics
+// @access  Admin, President
+router.get('/retention', auth, checkRoles('Admin', 'President'), async (req, res) => {
+  try {
+    const { previousYear, currentYear } = req.query;
+    if (!previousYear || !currentYear) {
+      return res.status(400).json({ message: 'previousYear and currentYear are required' });
+    }
+
+    const [prevOfficial, currAll] = await Promise.all([
+      Member.find({ academicYear: previousYear, status: 'Official Member' },
+        'studentId firstName lastName course yearLevel'),
+      Member.find({ academicYear: currentYear }, 'studentId'),
+    ]);
+
+    const currIds = new Set(currAll.map(m => m.studentId));
+    const prevIds = new Set(prevOfficial.map(m => m.studentId));
+
+    const returning   = prevOfficial.filter(m =>  currIds.has(m.studentId));
+    const lapsed      = prevOfficial.filter(m => !currIds.has(m.studentId));
+    const newCount    = currAll.filter(m => !prevIds.has(m.studentId)).length;
+
+    res.json({
+      previousYear,
+      currentYear,
+      previousOfficialCount: prevOfficial.length,
+      returningCount: returning.length,
+      lapsedCount: lapsed.length,
+      newMembersCount: newCount,
+      retentionRate: prevOfficial.length > 0
+        ? Math.round((returning.length / prevOfficial.length) * 100)
+        : null,
+      lapsedMembers: lapsed,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @route   GET /api/members/:id
 // @desc    Get member by ID
 // @access  Private
@@ -190,14 +231,23 @@ router.put('/:id/payment', auth, async (req, res) => {
 
     await member.save();
 
-    // Auto-record transaction in Finance when payment is marked as paid
+    // Auto-record transaction in Finance when payment is marked as paid.
+    // Use a date that falls within the member's own academic year so the
+    // transaction is attributed to the correct year regardless of when the
+    // payment is recorded in the system.
     if (hasPaid && !wasAlreadyPaid && member.amountPaid > 0) {
+      const [startYr] = member.academicYear.split('-').map(Number);
+      const ayStart = new Date(startYr, 7, 1);          // Aug 1 of start year
+      const ayEnd   = new Date(startYr + 1, 7, 1);      // Aug 1 of end year
+      const pd      = new Date(member.paymentDate);
+      const txDate  = (pd >= ayStart && pd < ayEnd) ? pd : ayStart;
+
       await Transaction.create({
         type: 'Income',
         category: 'Membership Fee',
         amount: member.amountPaid,
         description: `Membership fee — ${member.firstName} ${member.lastName} (${member.studentId})`,
-        date: member.paymentDate,
+        date: txDate,
         reference: member.studentId,
         createdBy: req.user._id,
       });

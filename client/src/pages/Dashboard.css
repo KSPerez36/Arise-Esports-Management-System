@@ -1,7 +1,6 @@
 /* ── Dashboard Page ── */
 .dash-page {
-  padding: 28px 32px;
-  min-height: 100vh;
+  padding: 20px 28px;
 }
 
 /* ── Page Header ── */
@@ -10,8 +9,8 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .dash-title {
   font-size: 1.75rem;
@@ -27,27 +26,16 @@
   color: #64748b;
   margin: 4px 0 0;
 }
-.dash-year-select {
-  padding: 8px 14px;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 9px;
-  font-size: 0.875rem;
-  color: #1e293b;
-  background: #fff;
-  outline: none;
-  cursor: pointer;
-}
-.dash-year-select:focus { border-color: #3366FF; }
 
-/* ── Section Title ── */
+/* ── Section ── */
 .dash-section {
-  margin-bottom: 20px;
+  margin-bottom: 14px;
 }
 .dash-section-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 .dash-section-title {
   font-size: 1rem;
@@ -66,54 +54,72 @@
   letter-spacing: 0.3px;
 }
 
+/* ── Stat cards — tighter in dashboard context ── */
+.dash-page .stats-grid {
+  gap: 12px;
+  margin-bottom: 0;
+}
+.dash-page .stat-card {
+  padding: 14px 16px;
+  gap: 6px;
+}
+.dash-page .stat-card-value {
+  font-size: 24px !important;
+}
+.dash-page .stat-card-icon-badge {
+  width: 36px;
+  height: 36px;
+  font-size: 15px;
+}
+
 /* ── Finance Summary Cards ── */
 .dash-fin-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 .dash-fin-card {
   background: #fff;
-  border-radius: 14px;
-  padding: 18px 20px;
+  border-radius: 12px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  border-top: 4px solid transparent;
+  border-top: 3px solid transparent;
 }
-.dash-fin-card-budget  { border-top-color: #3366FF; }
-.dash-fin-card-income  { border-top-color: #059669; }
-.dash-fin-card-expense { border-top-color: #ef4444; }
-.dash-fin-card-balance-pos { border-top-color: #059669; }
-.dash-fin-card-balance-neg { border-top-color: #ef4444; }
+.dash-fin-card-budget       { border-top-color: #3366FF; }
+.dash-fin-card-income       { border-top-color: #059669; }
+.dash-fin-card-expense      { border-top-color: #ef4444; }
+.dash-fin-card-balance-pos  { border-top-color: #059669; }
+.dash-fin-card-balance-neg  { border-top-color: #ef4444; }
 
 .dash-fin-card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
 }
-.dash-fin-card-budget  .dash-fin-card-icon { background: #eff6ff; color: #3366FF; }
-.dash-fin-card-income  .dash-fin-card-icon { background: #ecfdf5; color: #059669; }
-.dash-fin-card-expense .dash-fin-card-icon { background: #fef2f2; color: #ef4444; }
+.dash-fin-card-budget      .dash-fin-card-icon { background: #eff6ff; color: #3366FF; }
+.dash-fin-card-income      .dash-fin-card-icon { background: #ecfdf5; color: #059669; }
+.dash-fin-card-expense     .dash-fin-card-icon { background: #fef2f2; color: #ef4444; }
 .dash-fin-card-balance-pos .dash-fin-card-icon { background: #ecfdf5; color: #059669; }
 .dash-fin-card-balance-neg .dash-fin-card-icon { background: #fef2f2; color: #ef4444; }
 
 .dash-fin-card-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 .dash-fin-card-value {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #1e293b;
   margin-top: 2px;
@@ -122,9 +128,8 @@
 /* ── Charts Grid ── */
 .dash-charts-grid {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 16px;
-  margin-bottom: 24px;
+  grid-template-columns: 1fr 300px;
+  gap: 12px;
 }
 @media (max-width: 960px) {
   .dash-charts-grid { grid-template-columns: 1fr; }
@@ -132,15 +137,15 @@
 
 .dash-chart-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 22px 24px;
+  border-radius: 14px;
+  padding: 16px 20px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
 .dash-chart-title {
   font-size: 0.875rem;
   font-weight: 700;
   color: #1e293b;
-  margin: 0 0 18px;
+  margin: 0 0 12px;
 }
 .dash-chart-sub {
   font-size: 0.75rem;
@@ -150,9 +155,7 @@
 }
 
 /* Donut center label */
-.dash-donut-wrap {
-  position: relative;
-}
+.dash-donut-wrap { position: relative; }
 .dash-donut-center {
   position: absolute;
   top: 50%;
@@ -162,13 +165,13 @@
   pointer-events: none;
 }
 .dash-donut-pct {
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: #1e293b;
   line-height: 1;
 }
 .dash-donut-label {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: #94a3b8;
   font-weight: 600;
   text-transform: uppercase;
@@ -176,47 +179,58 @@
   margin-top: 2px;
 }
 
-/* ── Members stats ── */
-.dash-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
-  margin-bottom: 24px;
-}
-
-/* ── Welcome card ── */
-.dash-welcome-card {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px 28px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.dash-welcome-card h2 {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0 0 4px;
-}
-.dash-welcome-card p {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
-}
-
 /* ── Loading ── */
 .dash-loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  gap: 12px;
   color: #94a3b8;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  padding: 8px 0;
+}
+
+/* ── AI Insights Card — single compact row ── */
+.dash-insights-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 20px;
+}
+.dash-insights-empty {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0;
+}
+.dash-insights-inline {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.dash-insight-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dash-insight-icon  { font-size: 1.2rem; flex-shrink: 0; }
+.dash-insight-blue   { color: #3366FF; }
+.dash-insight-green  { color: #059669; }
+.dash-insight-red    { color: #ef4444; }
+.dash-insight-purple { color: #8b5cf6; }
+.dash-insight-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1e293b;
+  line-height: 1;
+}
+.dash-insight-label {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-top: 2px;
+}
+.dash-insights-note {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  flex-basis: 100%;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
 }

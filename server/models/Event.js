@@ -27,7 +27,11 @@ const eventSchema = new mongoose.Schema({
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
-  }
+  },
+  attendees: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Member'
+  }]
 }, {
   timestamps: true
 });

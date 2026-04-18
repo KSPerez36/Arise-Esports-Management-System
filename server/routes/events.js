@@ -79,4 +79,34 @@ router.delete('/:id', auth, adminOrPresident, async (req, res) => {
   }
 });
 
+// GET /api/events/:id/attendance
+router.get('/:id/attendance', auth, checkRoles('Admin', 'President', 'Secretary'), async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id)
+      .populate('attendees', 'studentId firstName lastName course yearLevel');
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    res.json({ attendees: event.attendees });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// PUT /api/events/:id/attendance
+router.put('/:id/attendance', auth, checkRoles('Admin', 'President', 'Secretary'), async (req, res) => {
+  try {
+    const { attendeeIds } = req.body;
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+    event.attendees = Array.isArray(attendeeIds) ? attendeeIds : [];
+    await event.save();
+    await logActivity(req.user._id, 'UPDATE', 'Events',
+      `Recorded attendance for "${event.title}" — ${event.attendees.length} members present`,
+      { eventId: event._id, attendeeCount: event.attendees.length }
+    );
+    res.json({ attendeeCount: event.attendees.length });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 module.exports = router;

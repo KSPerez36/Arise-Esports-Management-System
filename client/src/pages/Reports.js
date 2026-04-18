@@ -8,7 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faFileAlt, faUsers, faCalendarDays, faWallet, faClipboardList,
   faFileCsv, faFilePdf, faPlus, faEdit, faTrash, faSpinner,
-  faFileLines, faTableList,
+  faFileLines, faTableList, faUserGroup,
 } from '@fortawesome/free-solid-svg-icons';
 import './Reports.css';
 
@@ -428,6 +428,12 @@ const Reports = () => {
   // Attendance tab
   const [selectedEventId, setSelectedEventId] = useState('');
 
+  // Retention tab
+  const [retentionData, setRetentionData]   = useState(null);
+  const [retLoading, setRetLoading]         = useState(false);
+  const [retPrevYear, setRetPrevYear]       = useState('');
+  const [retCurrYear, setRetCurrYear]       = useState('');
+
   const loaded = useRef({ members: false, events: false, finances: false, minutes: false });
 
   const showMessage = (type, text) => showToast(type, text);
@@ -487,6 +493,71 @@ const Reports = () => {
     if (tab === 'finances' && !loaded.current.finances) { loaded.current.finances = true; fetchFinances(academicYear); }
     if (tab === 'minutes' && !loaded.current.minutes) { loaded.current.minutes = true; fetchMinutes(); }
   };
+
+  const fetchRetentionData = async () => {
+    if (!retPrevYear || !retCurrYear) {
+      showMessage('error', 'Please select both academic years.');
+      return;
+    }
+    try {
+      setRetLoading(true);
+      const res = await axios.get(
+        `${API_URL}/members/retention?previousYear=${retPrevYear}&currentYear=${retCurrYear}`
+      );
+      setRetentionData(res.data);
+    } catch (err) {
+      showMessage('error', err.response?.data?.message || 'Failed to load retention data.');
+    } finally {
+      setRetLoading(false);
+    }
+  };
+
+  const exportRetentionCSV = () => {
+    if (!retentionData?.lapsedMembers?.length) return;
+    downloadCSV(
+      ['Student ID', 'Last Name', 'First Name', 'Course', 'Year Level'],
+      retentionData.lapsedMembers.map(m => [
+        m.studentId, m.lastName, m.firstName, m.course, m.yearLevel,
+      ]),
+      `lapsed_members_${retPrevYear}_to_${retCurrYear}.csv`
+    );
+  };
+
+  const exportRetentionPDF = () => {
+    if (!retentionData) return;
+    const doc = new jsPDF('p', 'mm', 'a4');
+    let y = pdfHeader(doc, `Member Retention Report — AY ${retPrevYear} → AY ${retCurrYear}`);
+    doc.setFontSize(9);
+    doc.text(
+      `Retention Rate: ${retentionData.retentionRate ?? 'N/A'}%   Returning: ${retentionData.returningCount}   Lapsed: ${retentionData.lapsedCount}   New: ${retentionData.newMembersCount}`,
+      14, y
+    );
+    y += 10;
+    if (retentionData.lapsedMembers?.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.text('Lapsed Members (did not re-register)', 14, y);
+      y += 4;
+      autoTable(doc, {
+        startY: y,
+        head: [['Student ID', 'Name', 'Course', 'Year Level']],
+        body: retentionData.lapsedMembers.map(m => [
+          m.studentId, `${m.lastName}, ${m.firstName}`, m.course, m.yearLevel,
+        ]),
+        styles: { fontSize: 8 },
+        headStyles: { fillColor: [51, 102, 255] },
+      });
+    }
+    doc.save(`retention_report_${Date.now()}.pdf`);
+  };
+
+  // Init retention year selectors from context
+  useEffect(() => {
+    const [start] = academicYear.split('-').map(Number);
+    setRetCurrYear(academicYear);
+    setRetPrevYear(`${start - 1}-${start}`);
+    setRetentionData(null);
+  }, [academicYear]);
 
   // Load initial tab on mount
   useEffect(() => { loaded.current.members = true; fetchMembers(academicYear); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -702,6 +773,7 @@ const Reports = () => {
     { id: 'finances',   label: 'Financial Report', icon: faWallet },
     { id: 'minutes',    label: 'Meeting Minutes',  icon: faClipboardList },
     { id: 'attendance', label: 'Attendance Sheet', icon: faTableList },
+    { id: 'retention',  label: 'Retention',        icon: faUserGroup },
   ];
 
   // ── Render ─────────────────────────────────────────────────────────────────
@@ -1133,6 +1205,117 @@ const Reports = () => {
           >
             <FontAwesomeIcon icon={faFilePdf} /> Generate Attendance Sheet PDF
           </button>
+        </div>
+      )}
+
+      {/* ════════════════════════════════════════════════════════════
+          TAB: RETENTION
+      ════════════════════════════════════════════════════════════ */}
+      {activeTab === 'retention' && (
+        <div className="rep-retention-panel">
+          <div className="rep-retention-controls">
+            <div className="rep-form-group">
+              <label>Previous Academic Year</label>
+              <input
+                type="text"
+                className="rep-select"
+                placeholder="e.g. 2024-2025"
+                value={retPrevYear}
+                onChange={e => setRetPrevYear(e.target.value)}
+              />
+            </div>
+            <div className="rep-form-group">
+              <label>Current Academic Year</label>
+              <input
+                type="text"
+                className="rep-select"
+                placeholder="e.g. 2025-2026"
+                value={retCurrYear}
+                onChange={e => setRetCurrYear(e.target.value)}
+              />
+            </div>
+            <button className="rep-add-btn" onClick={fetchRetentionData} disabled={retLoading}>
+              {retLoading ? <><FontAwesomeIcon icon={faSpinner} spin /> Loading...</> : 'Generate'}
+            </button>
+          </div>
+
+          {retentionData && (
+            <>
+              {/* Stats */}
+              <div className="rep-stats-row">
+                <div className="rep-stat-card" style={{ borderTopColor: '#3366FF' }}>
+                  <div className="rep-stat-value">{retentionData.retentionRate ?? 'N/A'}{retentionData.retentionRate !== null ? '%' : ''}</div>
+                  <div className="rep-stat-label">Retention Rate</div>
+                </div>
+                <div className="rep-stat-card" style={{ borderTopColor: '#059669' }}>
+                  <div className="rep-stat-value">{retentionData.returningCount}</div>
+                  <div className="rep-stat-label">Returned</div>
+                </div>
+                <div className="rep-stat-card" style={{ borderTopColor: '#ef4444' }}>
+                  <div className="rep-stat-value">{retentionData.lapsedCount}</div>
+                  <div className="rep-stat-label">Lapsed</div>
+                </div>
+                <div className="rep-stat-card" style={{ borderTopColor: '#8b5cf6' }}>
+                  <div className="rep-stat-value">{retentionData.newMembersCount}</div>
+                  <div className="rep-stat-label">New This Year</div>
+                </div>
+                <div className="rep-stat-card" style={{ borderTopColor: '#94a3b8' }}>
+                  <div className="rep-stat-value">{retentionData.previousOfficialCount}</div>
+                  <div className="rep-stat-label">Prior Year Total</div>
+                </div>
+              </div>
+
+              {retentionData.retentionRate !== null && retentionData.retentionRate < 60 && (
+                <div className="rep-ret-warning">
+                  ⚠ Retention is below 60%. Consider reviewing engagement and outreach strategies.
+                </div>
+              )}
+
+              {/* Lapsed Members Table */}
+              <div className="rep-section-header">
+                <h3>Lapsed Members ({retentionData.lapsedCount})</h3>
+                <div className="rep-export-row">
+                  <button className="rep-export-btn" onClick={exportRetentionCSV} disabled={!retentionData.lapsedMembers?.length}>
+                    <FontAwesomeIcon icon={faFileCsv} /> CSV
+                  </button>
+                  <button className="rep-export-btn" onClick={exportRetentionPDF}>
+                    <FontAwesomeIcon icon={faFilePdf} /> PDF
+                  </button>
+                </div>
+              </div>
+
+              {retentionData.lapsedMembers?.length === 0 ? (
+                <p style={{ color: '#94a3b8', fontSize: '0.875rem', padding: '16px 0' }}>All official members from {retPrevYear} returned this year.</p>
+              ) : (
+                <table className="rep-table">
+                  <thead>
+                    <tr>
+                      <th>Student ID</th>
+                      <th>Name</th>
+                      <th>Course</th>
+                      <th>Year Level</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {retentionData.lapsedMembers.map(m => (
+                      <tr key={m._id || m.studentId}>
+                        <td>{m.studentId}</td>
+                        <td>{m.lastName}, {m.firstName}</td>
+                        <td>{m.course}</td>
+                        <td>{m.yearLevel}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </>
+          )}
+
+          {!retentionData && !retLoading && (
+            <p style={{ color: '#94a3b8', fontSize: '0.875rem', paddingTop: '16px' }}>
+              Select two academic years and click Generate to compute retention analytics.
+            </p>
+          )}
         </div>
       )}
 
